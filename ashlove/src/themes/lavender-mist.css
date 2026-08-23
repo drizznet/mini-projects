@@ -1,0 +1,26 @@
+/*
+ * LAVENDER MIST THEME
+ * Soft lilac, eucalyptus, and plum for a gentler editorial feel.
+ * Swap the import in src/index.css to this file to activate it.
+ */
+
+@import './health-love.css';
+
+:root {
+  --hl-ink: #3d3453;
+  --hl-ink-soft: #55476d;
+  --hl-forest: #665b7d;
+  --hl-muted: #7a728b;
+  --hl-coral: #a5749d;
+  --hl-coral-dark: #8c5e86;
+  --hl-coral-light: #e7c5d8;
+  --hl-peach: #f1dde9;
+  --hl-peach-soft: #f6e9f1;
+  --hl-sage: #dae6d2;
+  --hl-sage-soft: #f0f5eb;
+  --hl-mint: #d9e6dc;
+  --hl-cream: #fbf9fc;
+  --hl-paper: #fffefe;
+  --hl-white: #ffffff;
+  --hl-gold: #cda766;
+}

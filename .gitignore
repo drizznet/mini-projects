@@ -1,0 +1,8 @@
+.DS_Store
+.pnpm-store
+node_modules
+dist
+dist-ssr
+*.local
+.idea
+*.log

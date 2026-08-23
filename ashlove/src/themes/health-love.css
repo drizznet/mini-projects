@@ -1,0 +1,316 @@
+/*
+ * HEALTH / LOVE DESIGN SYSTEM
+ * ---------------------------
+ * Swap this one file to retheme Ashlove without changing page components.
+ * Keep the token names, replace only the colour and typography values below.
+ */
+
+:root {
+  --hl-ink: #173c36;
+  --hl-ink-soft: #28554d;
+  --hl-forest: #31554e;
+  --hl-muted: #55756c;
+  --hl-coral: #e27b65;
+  --hl-coral-dark: #d9715c;
+  --hl-coral-light: #f6a18d;
+  --hl-peach: #f5d8ce;
+  --hl-peach-soft: #f4d9ce;
+  --hl-sage: #dfeccf;
+  --hl-sage-soft: #eef2e7;
+  --hl-mint: #d5e5dc;
+  --hl-cream: #f9f7f1;
+  --hl-paper: #fdfcf9;
+  --hl-white: #fffdf9;
+  --hl-gold: #efad4f;
+  --hl-font-display: Georgia, 'Times New Roman', serif;
+  --hl-font-body: 'Manrope Variable', Arial, sans-serif;
+}
+
+/* Existing utility classes are mapped to semantic tokens so this system can
+   be changed by pasting in a replacement theme file. Opacity / hover / focus
+   variants used on the page (including the floating nav) are covered here. */
+.bg-\[\#173c36\] {
+  background-color: var(--hl-ink) !important;
+}
+.bg-\[\#173c36\]\/50 {
+  background-color: color-mix(
+    in srgb,
+    var(--hl-ink) 50%,
+    transparent
+  ) !important;
+}
+.bg-\[\#173c36\]\/95 {
+  background-color: color-mix(
+    in srgb,
+    var(--hl-ink) 95%,
+    transparent
+  ) !important;
+}
+.bg-\[\#28554d\],
+.hover\:bg-\[\#28554d\]:hover {
+  background-color: var(--hl-ink-soft) !important;
+}
+.bg-\[\#31554e\] {
+  background-color: var(--hl-forest) !important;
+}
+.bg-\[\#d5e5dc\] {
+  background-color: var(--hl-mint) !important;
+}
+.bg-\[\#dceacb\],
+.bg-\[\#dfeccf\] {
+  background-color: var(--hl-sage) !important;
+}
+.bg-\[\#d7e8e2\] {
+  background-color: color-mix(in srgb, var(--hl-mint) 80%, white) !important;
+}
+.bg-\[\#d9715c\] {
+  background-color: var(--hl-coral-dark) !important;
+}
+.bg-\[\#e27b65\] {
+  background-color: var(--hl-coral) !important;
+}
+.bg-\[\#e7d6b5\] {
+  background-color: color-mix(
+    in srgb,
+    var(--hl-peach) 55%,
+    var(--hl-gold)
+  ) !important;
+}
+.bg-\[\#eef2e7\] {
+  background-color: var(--hl-sage-soft) !important;
+}
+.bg-\[\#f2cfc5\],
+.bg-\[\#f4d9ce\],
+.bg-\[\#f5d8ce\] {
+  background-color: var(--hl-peach) !important;
+}
+.bg-\[\#f3f0e8\] {
+  background-color: color-mix(
+    in srgb,
+    var(--hl-cream) 85%,
+    var(--hl-sage)
+  ) !important;
+}
+.bg-\[\#f6a18d\] {
+  background-color: var(--hl-coral-light) !important;
+}
+.hover\:bg-\[\#ffc0af\]:hover {
+  background-color: color-mix(
+    in srgb,
+    var(--hl-coral-light) 70%,
+    white
+  ) !important;
+}
+.bg-\[\#f9f7f1\] {
+  background-color: var(--hl-cream) !important;
+}
+.bg-\[\#fdfbf6\],
+.bg-\[\#fdfcf9\],
+.bg-\[\#fffaf6\],
+.bg-\[\#fffdf9\] {
+  background-color: var(--hl-paper) !important;
+}
+.text-\[\#173c36\] {
+  color: var(--hl-ink) !important;
+}
+.text-\[\#31554e\],
+.text-\[\#37654f\] {
+  color: var(--hl-forest) !important;
+}
+.text-\[\#55756c\] {
+  color: var(--hl-muted) !important;
+}
+.text-\[\#bd5b48\],
+.text-\[\#d9715c\] {
+  color: var(--hl-coral-dark) !important;
+}
+.text-\[\#bddc9a\] {
+  color: color-mix(in srgb, var(--hl-sage) 75%, white) !important;
+}
+.text-\[\#de7c67\],
+.text-\[\#e27b65\],
+.text-\[\#e8846c\],
+.text-\[\#f7a38f\] {
+  color: var(--hl-coral) !important;
+}
+.text-\[\#efad4f\] {
+  color: var(--hl-gold) !important;
+}
+.border-\[\#173c36\]\/10,
+.border-\[\#173c36\]\/12,
+.border-\[\#173c36\]\/15,
+.border-\[\#173c36\]\/20 {
+  border-color: color-mix(in srgb, var(--hl-ink) 15%, transparent) !important;
+}
+.border-\[\#e27b65\]\/40 {
+  border-color: color-mix(
+    in srgb,
+    var(--hl-coral) 40%,
+    transparent
+  ) !important;
+}
+.border-\[\#f9f7f1\] {
+  border-color: var(--hl-cream) !important;
+}
+.focus\:border-\[\#e27b65\]:focus {
+  border-color: var(--hl-coral) !important;
+}
+.shadow-\[\#173c36\]\/10 {
+  --tw-shadow-color: color-mix(
+    in srgb,
+    var(--hl-ink) 10%,
+    transparent
+  ) !important;
+}
+.shadow-\[\#173c36\]\/30 {
+  --tw-shadow-color: color-mix(
+    in srgb,
+    var(--hl-ink) 30%,
+    transparent
+  ) !important;
+}
+.shadow-\[\#e27b65\]\/20 {
+  --tw-shadow-color: color-mix(
+    in srgb,
+    var(--hl-coral) 20%,
+    transparent
+  ) !important;
+}
+
+.feedback-track {
+  width: max-content;
+  animation: health-love-marquee 36s linear infinite;
+}
+
+.feedback-track:hover {
+  animation-play-state: paused;
+}
+
+.hero-title {
+  animation: health-love-title-in 850ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-title-accent {
+  display: inline-block;
+  animation: health-love-title-accent 900ms 180ms cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+}
+
+.hero-license-note {
+  animation: health-love-slide-right 720ms 360ms cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+}
+
+.hero-care-note {
+  animation: health-love-slide-left 720ms 520ms cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+}
+
+.proof-avatar {
+  animation: health-love-avatar-stack 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.proof-avatar-two {
+  animation-delay: 110ms;
+}
+.proof-avatar-three {
+  animation-delay: 220ms;
+}
+
+@keyframes health-love-slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes health-love-slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes health-love-avatar-stack {
+  from {
+    opacity: 0;
+    transform: translateX(-8px) scale(0.9);
+  }
+  70% {
+    opacity: 1;
+    transform: translateX(1px) scale(1.03);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes health-love-title-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes health-love-title-accent {
+  from {
+    opacity: 0;
+    transform: translateY(10px) rotate(1deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+}
+
+@keyframes health-love-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedback-track,
+  .hero-title,
+  .hero-title-accent,
+  .hero-license-note,
+  .hero-care-note,
+  .proof-avatar {
+    animation: none;
+  }
+}
+
+/* Mobile keeps the hero’s trust notes comfortably inside the image frame. */
+@media (max-width: 639px) {
+  .hero-license-note {
+    right: 0.25rem !important;
+    top: 0.75rem !important;
+  }
+
+  .hero-care-note {
+    bottom: 1.25rem !important;
+    max-width: 14rem;
+  }
+
+  .feedback-track {
+    animation-duration: 42s;
+  }
+}

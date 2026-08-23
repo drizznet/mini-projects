@@ -1,0 +1,26 @@
+/*
+ * SUNLIT CLAY THEME
+ * Earthy clay, olive, and parchment for an inviting natural warmth.
+ * Swap the import in src/index.css to this file to activate it.
+ */
+
+@import './health-love.css';
+
+:root {
+  --hl-ink: #493d2d;
+  --hl-ink-soft: #65533d;
+  --hl-forest: #74624b;
+  --hl-muted: #887864;
+  --hl-coral: #bd7859;
+  --hl-coral-dark: #a86148;
+  --hl-coral-light: #e8b795;
+  --hl-peach: #f2dfcf;
+  --hl-peach-soft: #f7ece2;
+  --hl-sage: #dfe2c1;
+  --hl-sage-soft: #f2f3e8;
+  --hl-mint: #d8dfc7;
+  --hl-cream: #fcf8f0;
+  --hl-paper: #fffdf8;
+  --hl-white: #ffffff;
+  --hl-gold: #c99a4b;
+}

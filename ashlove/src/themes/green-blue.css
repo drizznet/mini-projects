@@ -1,0 +1,26 @@
+/*
+ * CALM TIDE THEME
+ * Active theme. A composed coastal blue and eucalyptus palette.
+ * This imports the Health / Love system behaviour, then replaces its tokens.
+ */
+
+@import './health-love.css';
+
+:root {
+  --hl-ink: #183c49;
+  --hl-ink-soft: #285868;
+  --hl-forest: #356b71;
+  --hl-muted: #5d7d83;
+  --hl-coral: #4d9ab6;
+  --hl-coral-dark: #397c9a;
+  --hl-coral-light: #a9d6df;
+  --hl-peach: #d8edf0;
+  --hl-peach-soft: #e3f1f3;
+  --hl-sage: #d2e5db;
+  --hl-sage-soft: #edf5f1;
+  --hl-mint: #c6e0de;
+  --hl-cream: #f7faf9;
+  --hl-paper: #fcfefd;
+  --hl-white: #ffffff;
+  --hl-gold: #d8a95c;
+}

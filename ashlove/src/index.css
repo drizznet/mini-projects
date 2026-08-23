@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/manrope';
+/* Change this one import to swap the entire visual theme. */
+/* @import "./themes/green-blue.css"; */
+/* @import './themes/lavender-mist.css'; */
+/* @import './themes/pink-mint.css'; */
+/* @import './themes/orange-mint.css'; */
+@import './themes/health-love.css';
+
+
+@theme {
+  --font-sans: var(--hl-font-body);
+  --font-serif: var(--hl-font-display);
+}
+
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  font-family: var(--hl-font-body);
+}
+button,
+input,
+select {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
