@@ -1,0 +1,16 @@
+---
+description: Proactive — standalone personal focus product
+globs: **/*.{tsx,ts,css}
+alwaysApply: true
+---
+
+# Proactive
+
+Read `AGENTS.md` before changing this app.
+
+Standalone Next.js app. Do not re-link `@drizznet/*` workspace packages.
+
+Marketing is `/`. The product UI lives under `(app)/` starting at `/dashboard`.
+
+Nothing derived is persisted (session elapsed time is computed). App pages wait
+for hydration because day keys depend on the viewer's local calendar.

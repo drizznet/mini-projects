@@ -1,0 +1,237 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@source "../**/*.{ts,tsx}";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Proactive design tokens — Appwrite-inspired dark wine / black.
+ *
+ * Sampled from appwrite.io: near-black canvas (#0C0C0D), signature pink
+ * primary (#FD366E), and deep wine atmosphere (#42212E) on elevated surfaces.
+ * `:root` is the light companion; `.dark` is the default product surface
+ * (html ships with `.dark`; the theme toggle removes it).
+ *
+ * Health tokens (--health-*) drive adaptive dashboard colouring; read them
+ * through `src/lib/health.ts` rather than hardcoding hex in components.
+ */
+:root {
+  --radius: 0.625rem;
+
+  /* Soft parchment with a faint wine tint — light companion to the dark brand. */
+  --background: oklch(0.985 0.004 10);
+  --foreground: oklch(0.18 0.02 10);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.02 10);
+  --card-elevated: oklch(0.975 0.006 10);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.02 10);
+  /* #FD366E — Appwrite pink */
+  --primary: oklch(0.657 0.232 10.8);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.955 0.01 10);
+  --secondary-foreground: oklch(0.28 0.04 10);
+  --muted: oklch(0.955 0.008 10);
+  --muted-foreground: oklch(0.5 0.02 10);
+  --accent: oklch(0.95 0.03 10);
+  --accent-foreground: oklch(0.35 0.12 10);
+  --destructive: oklch(0.58 0.22 25);
+  --border: oklch(0.25 0.03 10 / 12%);
+  --input: oklch(0.25 0.03 10 / 16%);
+  --ring: oklch(0.657 0.232 10.8 / 50%);
+
+  --sidebar: oklch(0.975 0.006 10);
+  --sidebar-foreground: oklch(0.18 0.02 10);
+  --sidebar-border: oklch(0.25 0.03 10 / 10%);
+
+  --health-excellent: oklch(0.68 0.17 149);
+  --health-on-track: oklch(0.62 0.16 245);
+  --health-slipping: oklch(0.76 0.15 88);
+  --health-behind: oklch(0.68 0.17 52);
+  --health-critical: oklch(0.6 0.21 22);
+
+  --chart-1: oklch(0.657 0.232 10.8);
+  --chart-2: oklch(0.55 0.14 350);
+  --chart-3: oklch(0.68 0.17 149);
+  --chart-4: oklch(0.75 0.15 82);
+  --chart-5: oklch(0.62 0.18 340);
+  --chart-6: oklch(0.66 0.18 35);
+
+  --grid-line: oklch(0.25 0.03 10 / 9%);
+}
+
+.dark {
+  /* Near-black canvas with a whisper of wine — #0C0C0D territory. */
+  --background: oklch(0.145 0.008 350);
+  --foreground: oklch(0.97 0.005 10);
+  /* Elevated panels: charcoal with wine undertone (#19191B / #201820). */
+  --card: oklch(0.205 0.012 350);
+  --card-foreground: oklch(0.97 0.005 10);
+  --card-elevated: oklch(0.24 0.018 350);
+  --popover: oklch(0.22 0.014 350);
+  --popover-foreground: oklch(0.97 0.005 10);
+  /* Signature pink CTA / brand accent */
+  --primary: oklch(0.657 0.232 10.8);
+  --primary-foreground: oklch(0.99 0.01 10);
+  --secondary: oklch(0.255 0.02 350);
+  --secondary-foreground: oklch(0.96 0.005 10);
+  --muted: oklch(0.24 0.015 350);
+  --muted-foreground: oklch(0.7 0.01 286);
+  /* Deep wine wash for hover/selected surfaces (#42212E). */
+  --accent: oklch(0.3 0.055 356);
+  --accent-foreground: oklch(0.95 0.02 10);
+  --destructive: oklch(0.65 0.21 22);
+  --border: oklch(1 0.01 10 / 9%);
+  --input: oklch(1 0.01 10 / 12%);
+  --ring: oklch(0.657 0.232 10.8 / 55%);
+
+  --sidebar: oklch(0.165 0.012 350);
+  --sidebar-foreground: oklch(0.96 0.005 10);
+  --sidebar-border: oklch(1 0.01 10 / 8%);
+
+  --health-excellent: oklch(0.75 0.18 152);
+  --health-on-track: oklch(0.7 0.16 246);
+  --health-slipping: oklch(0.82 0.16 90);
+  --health-behind: oklch(0.74 0.17 55);
+  --health-critical: oklch(0.68 0.2 22);
+
+  --chart-1: oklch(0.657 0.232 10.8);
+  --chart-2: oklch(0.58 0.14 350);
+  --chart-3: oklch(0.75 0.18 152);
+  --chart-4: oklch(0.82 0.15 84);
+  --chart-5: oklch(0.7 0.19 340);
+  --chart-6: oklch(0.74 0.17 38);
+
+  --grid-line: oklch(1 0.01 10 / 7%);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-card-elevated: var(--card-elevated);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+
+  --color-health-excellent: var(--health-excellent);
+  --color-health-on-track: var(--health-on-track);
+  --color-health-slipping: var(--health-slipping);
+  --color-health-behind: var(--health-behind);
+  --color-health-critical: var(--health-critical);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 16px);
+
+  --animate-shimmer: shimmer 2.4s linear infinite;
+  --animate-pulse-ring: pulse-ring 2.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes pulse-ring {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.15;
+    transform: scale(1.06);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  /* Reserve the scrollbar so opening a dialog does not shift the layout. */
+  html {
+    scrollbar-gutter: stable;
+  }
+}
+
+@utility surface-grid {
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+@utility text-balance-tight {
+  text-wrap: balance;
+}
+
+/* Wine + pink aurora — Appwrite-style atmospheric glow on hero surfaces. */
+@utility aurora {
+  background:
+    radial-gradient(
+      ellipse 60% 50% at 8% 0%,
+      color-mix(in oklab, var(--accent) 55%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 45% 40% at 72% 12%,
+      color-mix(in oklab, var(--primary) 18%, transparent),
+      transparent 58%
+    );
+}
+
+/* Number columns in tables/metrics should not jitter as digits change. */
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
