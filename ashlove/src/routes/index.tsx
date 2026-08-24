@@ -131,6 +131,20 @@ function AshloveHome() {
     return () => observer.disconnect()
   }, [])
 
+  useEffect(() => {
+    if (!bookingOpen) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setBookingOpen(false)
+    }
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [bookingOpen])
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#f9f7f1] text-[#173c36]">
       <div className="border-b border-[#173c36]/10 bg-[#f3f0e8] px-5 py-2 text-center text-[11px] font-semibold tracking-[.12em] text-[#55756c] sm:text-xs">
@@ -625,22 +639,36 @@ function AshloveHome() {
         </div>
       )}
       {bookingOpen && (
-        <div className="fixed inset-0 z-40 grid place-items-center bg-[#173c36]/50 p-4">
+        <div
+          className="fixed inset-0 z-40 flex items-end justify-center bg-[#173c36]/50 md:items-center md:p-4"
+          onClick={() => setBookingOpen(false)}
+        >
           <form
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="booking-title"
             onSubmit={submitBooking}
-            className="relative w-full max-w-md rounded-3xl bg-[#fffdf9] p-7 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+            className="booking-panel relative max-h-[92dvh] w-full overflow-y-auto rounded-t-[2rem] bg-[#fffdf9] px-6 pt-3 pb-[max(1.75rem,env(safe-area-inset-bottom))] shadow-2xl md:max-w-md md:rounded-3xl md:p-7"
           >
+            <div
+              className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-[#173c36]/15 md:hidden"
+              aria-hidden
+            />
             <button
               type="button"
               onClick={() => setBookingOpen(false)}
               className="absolute top-5 right-5 text-[#55756c]"
+              aria-label="Close consultation form"
             >
               <X className="size-5" />
             </button>
             <p className="text-xs font-bold tracking-[.16em] text-[#d9715c] uppercase">
               Start here
             </p>
-            <h2 className="mt-3 font-serif text-3xl">Book your consultation</h2>
+            <h2 id="booking-title" className="mt-3 font-serif text-3xl">
+              Book your consultation
+            </h2>
             <p className="mt-2 text-sm text-[#55756c]">
               Share your details and we’ll find a time that feels right.
             </p>

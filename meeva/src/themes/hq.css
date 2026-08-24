@@ -1,0 +1,24 @@
+/*
+ * MEEVA HQ DESIGN SYSTEM
+ * ----------------------
+ * Swap this one file to retheme a duplicated project.
+ * Keep the token names. Change only the values.
+ */
+
+:root {
+  --hq-canvas: #0c0b0a;
+  --hq-surface: #151310;
+  --hq-surface-raised: #1d1a16;
+  --hq-ink: #f3ece3;
+  --hq-muted: #b3aaa0;
+  --hq-faint: #7c746b;
+  --hq-line: color-mix(in srgb, var(--hq-ink) 12%, transparent);
+  --hq-line-strong: color-mix(in srgb, var(--hq-ink) 22%, transparent);
+  --hq-accent: #e85d2a;
+  --hq-accent-ink: #1a0c07;
+  --hq-live: #4ade80;
+  --hq-soon: #f0b45a;
+  --hq-font-body:
+    'Neue Montreal', 'Manrope Variable', Arial, sans-serif;
+  --hq-font-display: 'Instrument Serif', Georgia, serif;
+}

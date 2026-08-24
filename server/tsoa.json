@@ -1,0 +1,25 @@
+{
+  "entryFile": "src/server.ts",
+  "noImplicitAdditionalProperties": "throw-on-extras",
+  "controllerPathGlobs": [
+    "src/modules/**/*Controller.ts"
+  ],
+  "spec": {
+    "outputDirectory": "src/generated",
+    "specVersion": 3,
+    "name": "Drizznet Server API",
+    "description": "Routes and OpenAPI are generated from TSOA controllers.",
+    "version": "0.1.0",
+    "securityDefinitions": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Token"
+      }
+    }
+  },
+  "routes": {
+    "routesDir": "src/generated",
+    "authenticationModule": "src/authentication.ts"
+  }
+}

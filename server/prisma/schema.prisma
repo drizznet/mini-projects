@@ -1,0 +1,47 @@
+// Prisma schema — maps TypeScript models ↔ Postgres tables.
+// Docs: https://www.prisma.io/docs
+//
+// Workflow:
+//   1. Edit this file
+//   2. pnpm db:migrate   (creates SQL migration + applies it)  OR  pnpm db:push (prototype)
+//   3. pnpm db:generate  (regenerates @prisma/client — also runs after migrate)
+//
+// DATABASE_URL comes from .env (brew :5432 or Docker :5433).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Matches the learning `todos` table. @@map keeps snake_case columns in Postgres
+/// while the Prisma client uses camelCase in TypeScript.
+model Todo {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String
+  description String?
+  completed   Boolean   @default(false)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  completedAt DateTime? @map("completed_at") @db.Timestamptz(6)
+
+  @@index([completed])
+  @@index([createdAt(sort: Desc)])
+  @@map("todos")
+}
+
+model User {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email String @unique
+  password String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("users")
+  @@index([email])
+  @@index([createdAt(sort: Desc)])
+  
+}

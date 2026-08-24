@@ -1,0 +1,8 @@
+what is prisma
+
+// to generate client from schema 
+pnpm dlx prisma generate
+
+You discover it from prisma/schema.prisma, not from a file next to the repository.
+
+Every model there becomes a property on prisma after pnpm db:generate:

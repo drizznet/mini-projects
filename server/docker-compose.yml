@@ -1,0 +1,27 @@
+# Local Postgres for the API — uses the official image (you don't build Postgres yourself).
+# From this folder: `pnpm docker:up`  →  `pnpm db:ping`
+#
+# Host port 5433 → container 5432 so brew Postgres can keep localhost:5432.
+# Credentials must match the Docker DATABASE_URL in .env.example.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: server-postgres
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: server
+      POSTGRES_PASSWORD: server
+      POSTGRES_DB: server_dev
+    volumes:
+      # Persist data across container restarts (Docker named volume).
+      - server_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U server -d server_dev"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  server_pg_data:

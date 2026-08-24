@@ -1,0 +1,54 @@
+{
+  "name": "server",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Standalone Express + TSOA API",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "generate": "tsoa spec-and-routes",
+    "watch:tsoa": "nodemon --watch src/modules --watch src/types --watch src/authentication.ts --watch tsoa.json --ext ts,json --exec \"tsoa spec-and-routes\"",
+    "dev": "pnpm generate && concurrently -k -n tsoa,api -c magenta,cyan \"pnpm watch:tsoa\" \"tsx watch --ignore node_modules src/server.ts\"",
+    "build": "pnpm generate && tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "types": "pnpm generate && tsc --noEmit -p tsconfig.json",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "db:ping": "tsx src/db/ping.ts",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:sql": "tsx src/db/migrate.ts",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "@tsoa/runtime": "^6.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.6.1",
+    "helmet": "^8.3.0",
+    "pg": "^8.16.3",
+    "swagger-ui-express": "^5.0.1",
+    "tsoa": "^6.6.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.15.5",
+    "@types/swagger-ui-express": "^4.1.8",
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.19.3",
+    "tsx": "^4.20.5",
+    "typescript": "~5.9.3"
+  }
+}

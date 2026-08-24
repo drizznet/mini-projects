@@ -1,0 +1,17 @@
+---
+description: Meeva — software headquarters and reusable freelance base
+globs: **/*.{tsx,ts,css,md}
+alwaysApply: true
+---
+
+# Meeva
+
+Read `AGENTS.md` before changing this app.
+
+This folder is the Meeva software-company headquarters and the base template to duplicate for freelance projects.
+
+Products are named `{Product} by meeva` (example: Proactive by meeva in sibling `proactive/`).
+
+Pages stay thin. Brand copy lives in `config/site.ts`. Theme tokens live in `themes/hq.css`.
+
+Do not reintroduce Ashlove healthcare UI. Do not merge the Proactive app into this repo.
