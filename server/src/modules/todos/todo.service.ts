@@ -3,7 +3,7 @@
  * Controllers stay thin; persistence goes through `todoRepository` only.
  */
 import { AppError } from "../../errors";
-import { todoRepository } from "./todo.repository";
+import { todoRepository, type TodoRepository } from "./todo.repository";
 import type {
   CreateTodoBody,
   ListTodosQuery,
@@ -21,10 +21,12 @@ function normalizeTitle(title: string): string {
 }
 
 export class TodoService {
+  constructor(private readonly todos: TodoRepository) {}
+
   async list(query: ListTodosQuery = {}): Promise<TodoListResponse> {
     const page = query.page ?? 1;
     const limit = query.limit ?? 20;
-    const all = await todoRepository.list({
+    const all = await this.todos.list({
       completed: query.completed,
       q: query.q,
     });
@@ -41,7 +43,7 @@ export class TodoService {
   }
 
   async getById(id: string): Promise<TodoResponse> {
-    const todo = await todoRepository.findById(id);
+    const todo = await this.todos.findById(id);
     if (!todo) {
       throw new AppError(404, "Todo not found");
     }
@@ -49,7 +51,7 @@ export class TodoService {
   }
 
   async create(body: CreateTodoBody): Promise<TodoResponse> {
-    const todo = await todoRepository.create({
+    const todo = await this.todos.create({
       title: normalizeTitle(body.title),
       description: body.description?.trim() || undefined,
     });
@@ -57,7 +59,7 @@ export class TodoService {
   }
 
   async update(id: string, body: UpdateTodoBody): Promise<TodoResponse> {
-    const existing = await todoRepository.findById(id);
+    const existing = await this.todos.findById(id);
     if (!existing) {
       throw new AppError(404, "Todo not found");
     }
@@ -79,7 +81,7 @@ export class TodoService {
       }
     }
 
-    const todo = await todoRepository.update(id, {
+    const todo = await this.todos.update(id, {
       title:
         body.title !== undefined ? normalizeTitle(body.title) : undefined,
       description:
@@ -98,11 +100,11 @@ export class TodoService {
   }
 
   async delete(id: string): Promise<void> {
-    const removed = await todoRepository.delete(id);
+    const removed = await this.todos.delete(id);
     if (!removed) {
       throw new AppError(404, "Todo not found");
     }
   }
 }
 
-export const todoService = new TodoService();
+export const todoService = new TodoService(todoRepository);

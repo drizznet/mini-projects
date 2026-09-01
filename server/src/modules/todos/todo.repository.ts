@@ -1,14 +1,10 @@
 /**
  * Todo persistence — Prisma Client → Postgres.
  * Services call `todoRepository`; do not import prisma from controllers/services.
- *
- * @example
- * import { todoRepository } from "./todo.repository";
- * const todos = await todoRepository.list();
  */
-import type { Todo as PrismaTodo } from "@prisma/client";
+import type { Todo as PrismaTodo } from "../../generated/prisma";
 import { prisma } from "../../db/prisma";
-import type { Todo } from "../../types/todo";
+import type { Todo } from "./todo.types";
 
 export type TodoCreateInput = {
   title: string;
@@ -101,7 +97,6 @@ export class TodoRepository {
       });
       return mapTodo(row);
     } catch {
-      // Prisma throws if the row does not exist — map to null for the service.
       return null;
     }
   }

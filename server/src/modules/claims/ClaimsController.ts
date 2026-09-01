@@ -8,7 +8,7 @@ import {
   SuccessResponse,
   Tags,
 } from "tsoa";
-import * as claimsService from "./claims.service";
+import { claimsService } from "./claims.service";
 import type {
   ClaimListResponse,
   ClaimResponse,
@@ -18,6 +18,7 @@ import type {
 @Route("api/claims")
 @Tags("Claims")
 export class ClaimsController extends Controller {
+
   @Get()
   public listClaims(): ClaimListResponse {
     return claimsService.listClaims();

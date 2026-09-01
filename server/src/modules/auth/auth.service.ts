@@ -1,66 +1,114 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
 import { AppError } from "../../errors";
-import type { AuthUser, LoginResponse } from "./auth.types";
+import { authRepository, type AuthRepository } from "./auth.repository";
+import { verifyGoogleIdToken } from "./google";
+import { hashPassword, verifyPassword } from "./password";
+import { signToken, TOKEN_TTL_SEC, verifyToken } from "./token";
+import type { AuthUser, LoginResponse, RegisterBody } from "./auth.types";
 
-const SECRET = process.env.AUTH_SECRET ?? "dev-secret-change-me";
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@drizznet.local";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "drizznet";
-/** Token lifetime in seconds (default 24h). */
-const TOKEN_TTL_SEC = Number(process.env.AUTH_TOKEN_TTL_SEC ?? 60 * 60 * 24);
-
-type TokenPayload = {
-  sub: string;
-  role: "admin";
-  exp: number;
-};
-
-function sign(payload: TokenPayload): string {
-  const body = Buffer.from(JSON.stringify(payload)).toString("base64url");
-  const sig = createHmac("sha256", SECRET).update(body).digest("base64url");
-  return `${body}.${sig}`;
+function toLoginUser(user: {
+  id: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+}): LoginResponse["user"] {
+  return {
+    id: user.id,
+    email: user.email,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
 }
 
-function verify(token: string): TokenPayload | null {
-  const [body, sig] = token.split(".");
-  if (!body || !sig) return null;
-
-  const expected = createHmac("sha256", SECRET).update(body).digest("base64url");
-  const a = Buffer.from(sig);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
-
-  try {
-    const payload = JSON.parse(
-      Buffer.from(body, "base64url").toString("utf8"),
-    ) as TokenPayload;
-    if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) {
-      return null;
-    }
-    return payload;
-  } catch {
-    return null;
-  }
-}
-
-export function login(email: string, password: string): LoginResponse {
-  if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
-    throw new AppError(401, "Invalid email or password");
-  }
-
-  const user: AuthUser = { email, role: "admin" };
-  const token = sign({
-    sub: email,
-    role: "admin",
+function issueLogin(user: {
+  id: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+}): LoginResponse {
+  const token = signToken({
+    sub: user.id,
     exp: Math.floor(Date.now() / 1000) + TOKEN_TTL_SEC,
   });
-
-  return { token, user };
+  return { token, user: toLoginUser(user) };
 }
 
-export function getUserFromToken(token: string): AuthUser {
-  const payload = verify(token);
-  if (!payload) {
-    throw new AppError(401, "Invalid or expired token");
+export class AuthService {
+  constructor(private readonly authRepository: AuthRepository) {}
+
+  getUserFromToken(token: string): AuthUser {
+    const payload = verifyToken(token);
+    if (!payload) {
+      throw new AppError(401, "Invalid or expired token");
+    }
+    return { email: payload.sub, role: "admin" };
   }
-  return { email: payload.sub, role: payload.role };
+
+  async login(email: string, password: string): Promise<LoginResponse> {
+    const user = await this.authRepository.findByEmail(email);
+    if (!user) {
+      throw new AppError(404, "User not found");
+    }
+
+    if (!user.passwordHarsh) {
+      throw new AppError(401, "Invalid email or password");
+    }
+
+    const isPasswordValid = await verifyPassword(
+      user.passwordHarsh,
+      password,
+    );
+    if (!isPasswordValid) {
+      throw new AppError(401, "Invalid password");
+    }
+
+    return issueLogin(user);
+  }
+
+  async loginWithGoogle(idToken: string): Promise<LoginResponse> {
+    const google = await verifyGoogleIdToken(idToken);
+
+    const existingAccount = await this.authRepository.findGoogleAccount(
+      google.sub,
+    );
+    if (existingAccount) {
+      return issueLogin(existingAccount.user);
+    }
+
+    const existingUser = await this.authRepository.findByEmail(google.email);
+    if (existingUser) {
+      await this.authRepository.linkGoogleAccount(
+        existingUser.id,
+        google.sub,
+      );
+      return issueLogin(existingUser);
+    }
+
+    const created = await this.authRepository.createGoogleUser({
+      email: google.email,
+      providerAccountId: google.sub,
+      displayName: google.name ?? null,
+      avatarUrl: google.picture ?? null,
+    });
+    return issueLogin(created);
+  }
+
+  async register(payload: RegisterBody): Promise<void> {
+    const email = payload.email?.trim().toLowerCase();
+    const password = payload.password;
+    const displayName = payload.displayName?.trim() || null;
+    const passwordHash = await hashPassword(password);
+
+    const existingUser = await this.authRepository.findByEmail(email);
+    if (existingUser) {
+      throw new AppError(409, "User already exists");
+    }
+
+    await this.authRepository.create({
+      email,
+      passwordHash,
+      displayName,
+    });
+  }
 }
+
+export const authService = new AuthService(authRepository);

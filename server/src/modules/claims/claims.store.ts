@@ -1,7 +1,6 @@
-import type { ExpenseClaim } from "../../types/claim";
+import type { ExpenseClaim } from "./claim.types";
 
-/** In-memory store until a `claims` table exists. */
-export const claims: ExpenseClaim[] = [
+const seed: ExpenseClaim[] = [
   {
     id: "exp_1842",
     employee: "A. Okonkwo",
@@ -32,10 +31,16 @@ export const claims: ExpenseClaim[] = [
   },
 ];
 
-let claimSeq = 1845;
+/** In-memory store until a `claims` table exists. */
+export class ClaimsStore {
+  readonly items: ExpenseClaim[] = [...seed];
+  private seq = 1845;
 
-export function nextClaimId() {
-  const id = `exp_${claimSeq}`;
-  claimSeq += 1;
-  return id;
+  nextId(): string {
+    const id = `exp_${this.seq}`;
+    this.seq += 1;
+    return id;
+  }
 }
+
+export const claimsStore = new ClaimsStore();

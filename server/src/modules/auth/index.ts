@@ -1,7 +1,10 @@
 export { AuthController } from "./AuthController";
-export { login, getUserFromToken } from "./auth.service";
+export { AuthService, authService } from "./auth.service";
+export { AuthRepository, authRepository } from "./auth.repository";
 export type {
+  AuthCreateInput,
   AuthUser,
+  GoogleLoginBody,
   LoginBody,
   LoginResponse,
   MeResponse,

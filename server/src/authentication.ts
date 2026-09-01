@@ -3,7 +3,7 @@
  * Controllers use `@Security("bearerAuth")`; TSOA calls this before the handler.
  */
 import type { Request } from "express";
-import { getUserFromToken } from "./modules/auth/auth.service";
+import { authService } from "./modules/auth/auth.service";
 import type { AuthUser } from "./modules/auth/auth.types";
 
 export async function expressAuthentication(
@@ -21,5 +21,5 @@ export async function expressAuthentication(
   }
 
   const token = header.slice("Bearer ".length).trim();
-  return getUserFromToken(token);
+  return authService.getUserFromToken(token);
 }

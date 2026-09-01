@@ -1,4 +1,22 @@
-import type { ExpenseClaim } from "../../types/claim";
+/**
+ * Claim shapes (in-memory until a Prisma `claims` table exists).
+ */
+export type ClaimStatus =
+  | "draft"
+  | "pending_approval"
+  | "approved"
+  | "rejected";
+
+export interface ExpenseClaim {
+  id: string;
+  employee: string;
+  amount: number;
+  currency: string;
+  category: string;
+  status: ClaimStatus;
+  submittedAt: string;
+  notes?: string;
+}
 
 export interface CreateClaimBody {
   employee: string;

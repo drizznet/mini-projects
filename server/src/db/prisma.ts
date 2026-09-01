@@ -9,7 +9,7 @@
  * const todos = await prisma.todo.findMany();
  */
 import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "../generated/prisma";
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;

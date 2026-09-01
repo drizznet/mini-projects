@@ -2,11 +2,10 @@
  * Feature-module CRUD template (controller → service → repository → SQL).
  *
  * Copy `src/modules/todos/` when adding a new resource:
- * 1. Row type in `src/types/` (if needed)
- * 2. HTTP DTOs (`*.types.ts`)
- * 3. repository (Prisma → Postgres)
- * 4. service (rules)
- * 5. *Controller.ts (TSOA HTTP) — globbed by tsoa.json
+ * 1. HTTP DTOs (`*.types.ts`)
+ * 2. repository (Prisma → Postgres)
+ * 3. service (rules)
+ * 4. *Controller.ts (TSOA HTTP) — globbed by tsoa.json
  *
  * Controllers return Promises because DB I/O is async — TSOA awaits them.
  *

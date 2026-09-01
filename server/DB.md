@@ -10,8 +10,8 @@ HTTP request
   → PostgreSQL               (brew :5432 or Docker :5433)
 ```
 
-**Row type** = TypeScript `Todo` in `src/types/todo.ts` (after repository mapping).  
-**HTTP DTOs** = `src/modules/todos/todo.types.ts`.  
+**HTTP DTOs** = `src/modules/todos/todo.types.ts` (TSOA / OpenAPI).  
+**Row type** = Prisma `Todo` from `@prisma/client`.  
 **Table** = `todos` (defined in `prisma/schema.prisma`, applied by migrate/push).  
 **Repository** = talks to the DB; service never imports Prisma/`pg` directly.
 

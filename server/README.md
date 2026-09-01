@@ -40,7 +40,7 @@ pnpm dev
 
 **Feature module (preferred)** — copy `src/modules/todos/` (types → repository → service → controller).
 
-**Table + row type** — add the table in `prisma/schema.prisma`; add the mapped row shape in `src/types/` when the API shape differs from Prisma.
+**Table + DTOs** — add the table in `prisma/schema.prisma`; HTTP shapes live in the feature module (`*.types.ts`). Use Prisma types in the repository.
 
 Then `pnpm dev` regenerates routes + OpenAPI (or run `pnpm generate`).
 
@@ -61,6 +61,8 @@ Layers: `TodosController` → `TodoService` → `TodoRepository` (Prisma → Pos
 | Endpoint | Auth |
 |----------|------|
 | `POST /api/auth/login` | Public |
+| `POST /api/auth/google` | Public (Google ID token) |
+| `POST /api/auth/register` | Public |
 | `GET /api/auth/me` | Bearer token from login |
 
 Default credentials (override with env):
@@ -82,6 +84,7 @@ Default credentials (override with env):
 | `ADMIN_PASSWORD` | `drizznet` | Login password |
 | `AUTH_SECRET` | `dev-secret-change-me` | Token HMAC secret |
 | `AUTH_TOKEN_TTL_SEC` | `86400` | Token lifetime |
+| `GOOGLE_CLIENT_ID` | — | Google OAuth Web client ID (verify ID tokens) |
 
 ## Scripts
 

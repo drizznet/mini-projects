@@ -8,7 +8,7 @@ import {
   SuccessResponse,
   Tags,
 } from "tsoa";
-import * as claimsService from "./claims.service";
+import { claimsService } from "./claims.service";
 import type {
   ApprovalDecisionBody,
   ClaimResponse,
@@ -18,6 +18,7 @@ import type {
 @Route("api/approvals")
 @Tags("Approvals")
 export class ApprovalsController extends Controller {
+
   @Get()
   public listPending(): PendingApprovalsResponse {
     return claimsService.listPendingApprovals();

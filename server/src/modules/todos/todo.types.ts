@@ -1,9 +1,16 @@
 /**
- * Todo HTTP DTOs. Row type: `src/types/todo.ts`.
+ * Todo HTTP DTOs (TSOA / OpenAPI). Persistence uses `@prisma/client` Todo.
  */
-import type { Todo } from "../../types/todo";
-
-export type { Todo };
+export interface Todo {
+  id: string;
+  title: string;
+  description?: string;
+  completed: boolean;
+  createdAt: string;
+  updatedAt: string;
+  /** Set when completed flips to true; cleared when reopened. */
+  completedAt?: string | null;
+}
 
 export interface CreateTodoBody {
   /**
