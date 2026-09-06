@@ -17,14 +17,14 @@ export function Experience() {
             <span aria-hidden className="dz-node absolute top-1.5 -left-8 size-4 rounded-full" />
             <h3 className="text-xl font-semibold sm:text-2xl">
               {job.role}{' '}
-              {job.href === '/meeva' ? (
+              {'href' in job && job.href === '/meeva' ? (
                 <Link
                   to="/meeva"
                   className="text-dz-cyan underline decoration-dotted underline-offset-4"
                 >
                   {job.org}
                 </Link>
-              ) : job.href ? (
+              ) : 'href' in job && job.href ? (
                 <a
                   href={job.href}
                   className="text-dz-cyan underline decoration-dotted underline-offset-4"
