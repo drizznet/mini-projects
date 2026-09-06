@@ -1,12 +1,14 @@
 ---
-description: Proactive — standalone personal focus product
+description: lockIn — standalone personal focus product (folder: proactive/)
 globs: **/*.{tsx,ts,css}
 alwaysApply: true
 ---
 
-# Proactive
+# lockIn
 
 Read `AGENTS.md` before changing this app.
+
+Product name is **lockIn**. The folder is still `proactive/`.
 
 Standalone Next.js app. Do not re-link `@drizznet/*` workspace packages.
 

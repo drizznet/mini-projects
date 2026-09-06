@@ -1,4 +1,4 @@
-# Proactive
+# lockIn
 
 A personal focus and attention management system — not a task manager. Plan a
 daily focus budget, run deep-work sessions with a preparation ritual, log every

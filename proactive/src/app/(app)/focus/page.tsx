@@ -29,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useFocusData } from "@/hooks/use-focus-data";
 import { itemHoursForDate } from "@/lib/analytics";
+import { BRAND } from "@/lib/brand";
 import { SESSION_PRESETS } from "@/lib/constants";
 import { activeItems, lineageFor, planForDate } from "@/lib/selectors";
 import { useFocusStore } from "@/lib/store/focus-store";
@@ -113,7 +114,7 @@ function FocusSetup() {
               <Radio className="size-5 animate-pulse text-primary" />
             </span>
             <p className="text-sm text-muted-foreground">
-              Proactive only tracks one session at a time so the numbers stay
+              {BRAND.name} only tracks one session at a time so the numbers stay
               honest.
             </p>
             <Button asChild>

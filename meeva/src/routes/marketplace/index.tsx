@@ -13,10 +13,10 @@ function MarketplacePage() {
 
   return (
     <section className="mx-auto max-w-6xl px-5 py-16 lg:px-8 lg:py-24">
-      <p className="text-xs tracking-[0.28em] text-accent uppercase">
+      <p className="text-xs tracking-[0.28em] text-faint uppercase">
         Marketplace
       </p>
-      <h1 className="mt-4 font-display text-5xl italic sm:text-6xl">
+      <h1 className="mt-4 text-5xl font-semibold tracking-tight sm:text-6xl">
         Live products
       </h1>
       <p className="mt-5 max-w-xl leading-7 text-muted">

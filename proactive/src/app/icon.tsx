@@ -17,21 +17,22 @@ export default function Icon() {
           borderRadius: 8,
         }}
       >
-        <svg width="20" height="20" viewBox="0 0 32 32" fill="none">
+        <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
           <path
-            d="M9.5 8.5 17.5 16 9.5 23.5"
+            d="M11.4 14.6V12.1C11.4 9.45 13.45 7.55 16 7.55c2.55 0 4.6 1.9 4.6 4.55v2.5"
             stroke="white"
-            strokeWidth="2.8"
+            strokeWidth="2.35"
             strokeLinecap="round"
-            strokeLinejoin="round"
           />
-          <path
-            d="M16.5 8.5 24.5 16 16.5 23.5"
-            stroke="white"
-            strokeWidth="2.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            opacity="0.55"
+          <rect x="9.35" y="14.35" width="13.3" height="11.4" rx="3.1" fill="white" />
+          <circle cx="16" cy="19.1" r="1.7" fill="#FD366E" />
+          <rect
+            x="15.25"
+            y="20.35"
+            width="1.5"
+            height="2.35"
+            rx="0.75"
+            fill="#FD366E"
           />
         </svg>
       </div>

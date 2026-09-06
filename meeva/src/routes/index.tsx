@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { HeroSection } from '@/components/features/home/hero-section'
+import { PortfolioPage } from '@/components/features/portfolio/portfolio-page'
 
-export const Route = createFileRoute('/')({ component: HeadquartersHome })
+export const Route = createFileRoute('/')({ component: DrizzHome })
 
-function HeadquartersHome() {
-  return <HeroSection />
+function DrizzHome() {
+  return <PortfolioPage />
 }

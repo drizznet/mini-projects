@@ -25,11 +25,12 @@ export const siteConfig = {
     'This is the house for that work — a store for what is live, and a list for what is next.',
   productPattern: 'Product by meeva',
   routes: {
-    home: '/',
+    home: '/meeva',
     marketplace: '/marketplace',
     soon: '/soon',
   },
   nav: [
+    { label: 'drizz.dev', to: '/' as const },
     { label: 'Marketplace', to: '/marketplace' as const },
     { label: 'Coming soon', to: '/soon' as const },
   ],

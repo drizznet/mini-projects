@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { LEGACY_STORAGE_KEY, STATE_VERSION, STORAGE_KEY } from "../constants";
+import { LEGACY_STORAGE_KEYS, STATE_VERSION, STORAGE_KEY } from "../constants";
 import type {
   Category,
   DailyPlan,
@@ -34,12 +34,16 @@ export function createLocalRepository(): FocusRepository {
       try {
         const raw =
           window.localStorage.getItem(STORAGE_KEY) ??
-          window.localStorage.getItem(LEGACY_STORAGE_KEY);
+          LEGACY_STORAGE_KEYS.map((key) => window.localStorage.getItem(key)).find(
+            Boolean,
+          );
         if (!raw) return null;
         const state = JSON.parse(raw) as FocusState;
         if (!window.localStorage.getItem(STORAGE_KEY)) {
           window.localStorage.setItem(STORAGE_KEY, raw);
-          window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+          for (const key of LEGACY_STORAGE_KEYS) {
+            window.localStorage.removeItem(key);
+          }
         }
         return state;
       } catch {
@@ -49,14 +53,18 @@ export function createLocalRepository(): FocusRepository {
     async save(state) {
       try {
         window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+        for (const key of LEGACY_STORAGE_KEYS) {
+          window.localStorage.removeItem(key);
+        }
       } catch {
         // Quota exceeded or private mode: keep running from memory.
       }
     },
     async clear() {
       window.localStorage.removeItem(STORAGE_KEY);
-      window.localStorage.removeItem(LEGACY_STORAGE_KEY);
+      for (const key of LEGACY_STORAGE_KEYS) {
+        window.localStorage.removeItem(key);
+      }
     },
   };
 }

@@ -1,12 +1,12 @@
 import { useRef } from 'react'
 import { Link } from '@tanstack/react-router'
-import { motion } from 'framer-motion'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
-import { ArrowRight } from '@phosphor-icons/react'
-import { Marquee } from '@/components/motion/marquee'
+import CrosshairCursor from '@/components/cursor'
+import { ScreenMarquee } from '@/components/motion/screen-marquee'
 import { siteConfig } from '@/config/site'
-import { easeOut, prefersReducedMotion } from '@/lib/motion'
+import { prefersReducedMotion } from '@/lib/motion'
+import { getMarqueeScreens } from '@/lib/products'
 
 gsap.registerPlugin(useGSAP)
 
@@ -30,16 +30,16 @@ export function HeroSection() {
         { yPercent: 120 },
         {
           yPercent: 0,
-          duration: 1.15,
-          stagger: 0.07,
+          duration: 1,
+          stagger: 0.06,
           ease: 'power4.out',
-          delay: 0.12,
+          delay: 0.08,
         }
       )
       gsap.fromTo(
         root.current.querySelectorAll('[data-hero-copy]'),
-        { opacity: 0, y: 18 },
-        { opacity: 1, y: 0, duration: 0.8, stagger: 0.1, delay: 0.45, ease: 'power3.out' }
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.7, stagger: 0.1, delay: 0.4, ease: 'power3.out' }
       )
     },
     { scope: root }
@@ -49,86 +49,58 @@ export function HeroSection() {
     <section
       ref={root}
       id="top"
-      className="relative overflow-hidden"
+      className="hq-hero-cursor relative overflow-hidden"
       aria-labelledby="hq-heading"
     >
-      <p
-        aria-hidden
-        className="pointer-events-none absolute top-24 right-0 hidden select-none font-display text-[18vw] leading-none text-ink/4 lg:block"
-      >
-        meeva
-      </p>
-      <div className="relative mx-auto max-w-6xl px-5 pt-20 pb-16 sm:pt-28 lg:px-8 lg:pt-32 lg:pb-20">
-        <p data-hero-copy className="text-xs tracking-[0.28em] text-accent uppercase">
-          {siteConfig.kind}
-        </p>
+      <CrosshairCursor
+        verticalColor="color-mix(in srgb, var(--hq-ink) 55%, transparent)"
+        horizontalColor="color-mix(in srgb, var(--hq-ink) 55%, transparent)"
+        dotColor="var(--hq-ink)"
+        labelColor="var(--hq-accent-ink)"
+        labelBg="var(--hq-ink)"
+        labelFont={{
+          fontFamily: 'var(--hq-font-body)',
+          fontWeight: 500,
+          fontSize: 11,
+          lineHeight: '1.4em',
+          letterSpacing: '0.02em',
+        }}
+      />
+
+      <div className="relative mx-auto max-w-4xl px-5 pt-16 text-center sm:pt-24 lg:pt-28">
         <h1
           id="hq-heading"
-          className="mt-6 max-w-4xl font-display text-5xl leading-[0.95] sm:text-7xl lg:text-8xl"
+          className="text-4xl font-semibold tracking-tight text-balance sm:text-6xl lg:text-7xl"
         >
           {splitWords(siteConfig.tagline)}
         </h1>
         <p
           data-hero-copy
-          className="mt-10 max-w-xl text-lg leading-8 text-muted"
+          className="mx-auto mt-5 max-w-xl text-base leading-7 text-muted sm:text-lg"
         >
           {siteConfig.description}
         </p>
-        <p data-hero-copy className="mt-4 max-w-xl leading-7 text-faint">
-          {siteConfig.manifesto}
-        </p>
       </div>
 
-      <Marquee
-        items={[
-          'Software company',
-          'Marketplace',
-          'Coming soon',
-          'Early access',
-          'Built to stay',
-        ]}
-      />
+      <div className="relative mt-10 sm:mt-14">
+        <ScreenMarquee items={getMarqueeScreens()} />
+      </div>
 
-      <div className="mx-auto grid max-w-6xl md:grid-cols-2">
-        {[
-          {
-            to: '/marketplace' as const,
-            kicker: 'Store',
-            title: 'Marketplace',
-            body: 'Live products. Read what they do, then open them.',
-            cta: 'Enter the store',
-          },
-          {
-            to: '/soon' as const,
-            kicker: 'Share this page',
-            title: 'Coming soon',
-            body: 'Upcoming work. Request early access or a note at launch.',
-            cta: 'See what’s next',
-          },
-        ].map((door) => (
-          <motion.div
-            key={door.to}
-            whileHover={{ y: -4 }}
-            transition={{ duration: 0.35, ease: easeOut }}
-          >
-            <Link
-              to={door.to}
-              className="group block border-b border-line px-5 py-12 md:border-r md:last:border-r-0 lg:px-8"
-            >
-              <p className="text-xs tracking-[0.22em] text-faint uppercase">
-                {door.kicker}
-              </p>
-              <h2 className="mt-4 font-display text-4xl italic sm:text-5xl">
-                {door.title}
-              </h2>
-              <p className="mt-4 max-w-sm leading-7 text-muted">{door.body}</p>
-              <span className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-accent">
-                {door.cta}
-                <ArrowRight className="size-4 transition group-hover:translate-x-1" />
-              </span>
-            </Link>
-          </motion.div>
-        ))}
+      <div className="relative mx-auto max-w-lg px-5 pb-20 text-center sm:pb-24">
+        <p data-hero-copy className="text-sm leading-7 text-muted sm:text-base">
+          {siteConfig.manifesto}
+        </p>
+        <div
+          data-hero-copy
+          className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm font-medium"
+        >
+          <Link to="/marketplace" className="underline underline-offset-4">
+            Marketplace
+          </Link>
+          <Link to="/soon" className="underline underline-offset-4">
+            Coming soon
+          </Link>
+        </div>
       </div>
     </section>
   )

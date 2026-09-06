@@ -1,4 +1,4 @@
--- Proactive — Supabase schema
+-- lockIn — Supabase schema
 --
 -- Mirrors src/lib/types.ts one-to-one. Every table is scoped by user_id and
 -- protected by row-level security, so the anon key can only ever reach the

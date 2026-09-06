@@ -1,5 +1,5 @@
 /**
- * Proactive domain model.
+ * lockIn domain model.
  *
  * Shape mirrors the Supabase schema in `supabase/schema.sql` one-to-one, so the
  * local store can be swapped for a remote repository without touching the UI.

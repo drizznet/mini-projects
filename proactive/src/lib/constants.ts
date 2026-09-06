@@ -7,8 +7,8 @@ import type {
   Priority,
 } from "./types";
 
-export const STORAGE_KEY = "proactive:state";
-export const LEGACY_STORAGE_KEY = "focus-os:state";
+export const STORAGE_KEY = "lockin:state";
+export const LEGACY_STORAGE_KEYS = ["proactive:state", "focus-os:state"] as const;
 export const STATE_VERSION = 1;
 
 export const PRIORITIES: Priority[] = ["critical", "high", "medium", "low"];

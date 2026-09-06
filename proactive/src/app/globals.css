@@ -7,7 +7,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Proactive design tokens — Appwrite-inspired dark wine / black.
+ * lockIn design tokens — Appwrite-inspired dark wine / black.
  *
  * Sampled from appwrite.io: near-black canvas (#0C0C0D), signature pink
  * primary (#FD366E), and deep wine atmosphere (#42212E) on elevated surfaces.
@@ -157,6 +157,8 @@
 
   --animate-shimmer: shimmer 2.4s linear infinite;
   --animate-pulse-ring: pulse-ring 2.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
 }
 
 @keyframes shimmer {
@@ -177,6 +179,24 @@
   50% {
     opacity: 0.15;
     transform: scale(1.06);
+  }
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
   }
 }
 

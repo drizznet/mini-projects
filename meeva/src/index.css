@@ -1,7 +1,9 @@
 @import 'tailwindcss';
 @import '@fontsource-variable/manrope';
+@import '@fontsource-variable/space-grotesk';
 @import '@fontsource/instrument-serif/400.css';
 @import '@fontsource/instrument-serif/400-italic.css';
+@import './themes/portfolio.css';
 @import './themes/hq.css';
 
 @font-face {
@@ -43,6 +45,12 @@
   --color-accent-ink: var(--hq-accent-ink);
   --color-live: var(--hq-live);
   --color-soon: var(--hq-soon);
+  --color-dz-green: var(--dz-green);
+  --color-dz-blue: var(--dz-blue);
+  --color-dz-cyan: var(--dz-cyan);
+  --color-dz-purple: var(--dz-purple);
+  --color-dz-yellow: var(--dz-yellow);
+  --color-dz-orange: var(--dz-orange);
 }
 
 * {
@@ -51,6 +59,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
 }
 
 body {
@@ -97,6 +106,39 @@ button {
   display: flex;
   width: max-content;
   animation: hq-marquee 28s linear infinite;
+}
+
+.hq-screen-marquee {
+  overflow: hidden;
+  perspective: 1400px;
+  padding: 1.25rem 0 2.75rem;
+}
+
+.hq-screen-track {
+  display: flex;
+  width: max-content;
+  gap: 0.7rem;
+  padding-inline: 8vw;
+  animation: hq-marquee 46s linear infinite;
+  transform-style: preserve-3d;
+}
+
+.hq-screen-card {
+  width: min(13.5rem, 46vw);
+  flex-shrink: 0;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--hq-surface);
+  box-shadow: 0 22px 44px rgb(17 17 17 / 10%);
+  transform-origin: 50% 80%;
+  will-change: transform;
+}
+
+.hq-screen-card img,
+.hq-screen-card > div {
+  height: 100%;
+  width: 100%;
 }
 
 @keyframes hq-marquee {
@@ -146,8 +188,27 @@ button {
   animation: hq-sheet-in 0.32s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.hq-hero-cursor,
+.hq-hero-cursor a,
+.hq-hero-cursor button {
+  cursor: none;
+}
+
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .hq-hero-cursor,
+  .hq-hero-cursor a,
+  .hq-hero-cursor button {
+    cursor: auto;
+  }
+
+  .hq-hero-cursor > [aria-hidden]:first-child {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hq-marquee,
+  .hq-screen-track,
   .hq-page-enter {
     animation: none;
   }

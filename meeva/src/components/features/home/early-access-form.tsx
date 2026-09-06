@@ -81,7 +81,7 @@ export function EarlyAccessForm({ product }: { product: Product }) {
       </div>
       <button
         type="submit"
-        className="justify-self-start rounded-md bg-ink px-4 py-2.5 text-sm font-semibold text-canvas"
+        className="justify-self-start rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-canvas"
       >
         {interest === 'access' ? 'Request early access' : 'Notify me'}
       </button>

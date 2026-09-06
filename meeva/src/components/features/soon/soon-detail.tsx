@@ -11,15 +11,16 @@ export function SoonDetail({ product }: { product: Product }) {
         <CoverField
           src={productImage(product)}
           alt=""
+          label={product.name}
           className="mb-8 h-56 w-full border border-line"
         />
-        <p className="text-xs tracking-[0.22em] text-accent uppercase">
+        <p className="text-xs tracking-[0.22em] text-faint uppercase">
           {product.category}
         </p>
         <div className="mt-3 flex flex-wrap items-baseline justify-between gap-3">
-          <h1 className="font-display text-5xl italic sm:text-6xl">
+          <h1 className="text-5xl font-semibold tracking-tight sm:text-6xl">
             {product.name}{' '}
-            <span className="font-sans text-xl not-italic text-muted">
+            <span className="text-xl font-normal text-muted">
               {product.byline}
             </span>
           </h1>
@@ -42,7 +43,7 @@ export function SoonDetail({ product }: { product: Product }) {
         {product.landingUrl ? (
           <a
             href={product.landingUrl}
-            className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-accent"
+            className="mt-8 inline-flex items-center gap-2 text-sm font-medium underline underline-offset-4"
           >
             Landing page
             <ArrowSquareOut className="size-4" />

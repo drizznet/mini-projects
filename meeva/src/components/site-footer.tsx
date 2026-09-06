@@ -9,7 +9,7 @@ export function SiteFooter() {
         <BrandMark compact />
         <nav className="flex gap-5 text-sm text-muted">
           {siteConfig.nav.map((item) => (
-            <Link key={item.to} to={item.to} className="hover:text-ink">
+            <Link key={item.to} to={item.to} className="underline-offset-4 hover:text-ink hover:underline">
               {item.label}
             </Link>
           ))}

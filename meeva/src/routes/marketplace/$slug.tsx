@@ -30,7 +30,7 @@ function ProductMissing() {
   return (
     <section className="mx-auto max-w-3xl px-5 py-20 lg:px-8">
       <h1 className="text-3xl font-semibold">This product is not in the store</h1>
-      <Link to="/marketplace" className="mt-6 inline-block text-sm text-accent">
+      <Link to="/marketplace" className="mt-6 inline-block text-sm underline underline-offset-4">
         Back to marketplace
       </Link>
     </section>

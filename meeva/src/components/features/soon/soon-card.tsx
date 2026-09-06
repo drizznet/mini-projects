@@ -16,18 +16,19 @@ export function SoonCard({ product }: { product: Product }) {
       <CoverField
         src={productImage(product)}
         alt=""
+        label={product.name}
         className="h-52 w-full"
       />
       <div className="flex flex-1 flex-col p-6">
         <div className="flex items-baseline justify-between gap-3">
-          <p className="text-xs tracking-[0.18em] text-accent uppercase">
+          <p className="text-xs tracking-[0.18em] text-faint uppercase">
             {product.category}
           </p>
           <p className="text-sm text-soon">{product.status}</p>
         </div>
-        <h2 className="mt-4 font-display text-3xl italic">
+        <h2 className="mt-4 text-3xl font-semibold tracking-tight">
           {product.name}{' '}
-          <span className="font-sans text-lg not-italic text-muted">
+          <span className="text-lg font-normal text-muted">
             {product.byline}
           </span>
         </h2>
@@ -35,7 +36,7 @@ export function SoonCard({ product }: { product: Product }) {
         <Link
           to="/soon/$slug"
           params={{ slug: product.slug }}
-          className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-accent"
+          className="mt-6 inline-flex items-center gap-2 text-sm font-medium underline underline-offset-4"
         >
           Details and early access
           <ArrowRight className="size-4" />

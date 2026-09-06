@@ -1,5 +1,5 @@
 ---
-description: Meeva — software headquarters and reusable freelance base
+description: Meeva — software headquarters, Drizz portfolio, and reusable freelance base
 globs: **/*.{tsx,ts,css,md}
 alwaysApply: true
 ---
@@ -8,10 +8,10 @@ alwaysApply: true
 
 Read `AGENTS.md` before changing this app.
 
-This folder is the Meeva software-company headquarters and the base template to duplicate for freelance projects.
+This folder is **drizz.dev** (portfolio at `/`) plus the Meeva software-company headquarters (`/meeva`) and the base template to duplicate for freelance projects.
 
-Products are named `{Product} by meeva` (example: Proactive by meeva in sibling `proactive/`).
+Products are named `{Product} by meeva` (example: lockIn by meeva in sibling `proactive/`).
 
-Pages stay thin. Brand copy lives in `config/site.ts`. Theme tokens live in `themes/hq.css`.
+Pages stay thin. Portfolio copy lives in `config/portfolio.ts`. Meeva brand copy lives in `config/site.ts`. Theme tokens live in `themes/portfolio.css` and `themes/hq.css`.
 
-Do not reintroduce Ashlove healthcare UI. Do not merge the Proactive app into this repo.
+Do not reintroduce Ashlove healthcare UI. Do not merge the lockIn app into this repo.

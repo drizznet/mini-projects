@@ -30,7 +30,7 @@ function SoonMissing() {
   return (
     <section className="mx-auto max-w-3xl px-5 py-20 lg:px-8">
       <h1 className="text-3xl font-semibold">This launch is not listed</h1>
-      <Link to="/soon" className="mt-6 inline-block text-sm text-accent">
+      <Link to="/soon" className="mt-6 inline-block text-sm underline underline-offset-4">
         Back to coming soon
       </Link>
     </section>

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { BrandLockup } from "@/components/brand/logo";
+import { LandingFaq } from "@/components/landing/landing-faq";
 import { Button } from "@/components/ui/button";
 import { BRAND } from "@/lib/brand";
 
@@ -31,7 +32,7 @@ const FEATURES = [
   {
     icon: Sparkles,
     title: "What to do next",
-    body: "When the day gets noisy, Proactive ranks remaining work by budget, priority, and staleness.",
+    body: `When the day gets noisy, ${BRAND.name} ranks remaining work by budget, priority, and staleness.`,
   },
 ];
 
@@ -65,6 +66,9 @@ export function LandingPage() {
             </a>
             <a href="#how" className="transition-colors hover:text-foreground">
               How it works
+            </a>
+            <a href="#faq" className="transition-colors hover:text-foreground">
+              FAQ
             </a>
           </nav>
           <Button size="sm" asChild>
@@ -167,6 +171,23 @@ export function LandingPage() {
           </div>
         </section>
 
+        <section id="faq" className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start">
+            <div>
+              <p className="text-[11px] font-semibold tracking-widest text-primary uppercase">
+                FAQ
+              </p>
+              <h2 className="mt-2 text-3xl font-semibold tracking-tight">
+                Before you lock in.
+              </h2>
+              <p className="mt-3 max-w-sm text-sm text-muted-foreground sm:text-base">
+                Short answers. The rest is in the app.
+              </p>
+            </div>
+            <LandingFaq />
+          </div>
+        </section>
+
         <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
           <div className="relative overflow-hidden rounded-3xl border border-border bg-card px-6 py-14 text-center sm:px-12">
             <div className="aurora pointer-events-none absolute inset-0" />
@@ -176,7 +197,7 @@ export function LandingPage() {
               </h2>
               <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
                 Open the app, set a budget, and protect the first session. The
-                rest of Proactive follows from that.
+                rest of {BRAND.name} follows from that.
               </p>
               <Button size="lg" className="mt-8" asChild>
                 <Link href="/dashboard">

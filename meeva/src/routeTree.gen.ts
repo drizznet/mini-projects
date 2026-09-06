@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MeevaRouteImport } from './routes/meeva'
 import { Route as MarketplaceIndexRouteImport } from './routes/marketplace/index'
 import { Route as MarketplaceSlugRouteImport } from './routes/marketplace/$slug'
 import { Route as SoonIndexRouteImport } from './routes/soon/index'
@@ -18,6 +19,11 @@ import { Route as SoonSlugRouteImport } from './routes/soon/$slug'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MeevaRoute = MeevaRouteImport.update({
+  id: '/meeva',
+  path: '/meeva',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketplaceIndexRoute = MarketplaceIndexRouteImport.update({
@@ -43,6 +49,7 @@ const SoonSlugRoute = SoonSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/meeva': typeof MeevaRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/soon/$slug': typeof SoonSlugRoute
   '/marketplace/': typeof MarketplaceIndexRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/meeva': typeof MeevaRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/soon/$slug': typeof SoonSlugRoute
   '/marketplace': typeof MarketplaceIndexRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/meeva': typeof MeevaRoute
   '/marketplace/$slug': typeof MarketplaceSlugRoute
   '/soon/$slug': typeof SoonSlugRoute
   '/marketplace/': typeof MarketplaceIndexRoute
@@ -66,12 +75,24 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/marketplace/$slug' | '/soon/$slug' | '/marketplace/' | '/soon/'
+    | '/'
+    | '/meeva'
+    | '/marketplace/$slug'
+    | '/soon/$slug'
+    | '/marketplace/'
+    | '/soon/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/marketplace/$slug' | '/soon/$slug' | '/marketplace' | '/soon'
+  to:
+    | '/'
+    | '/meeva'
+    | '/marketplace/$slug'
+    | '/soon/$slug'
+    | '/marketplace'
+    | '/soon'
   id:
     | '__root__'
     | '/'
+    | '/meeva'
     | '/marketplace/$slug'
     | '/soon/$slug'
     | '/marketplace/'
@@ -80,6 +101,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MeevaRoute: typeof MeevaRoute
   MarketplaceSlugRoute: typeof MarketplaceSlugRoute
   SoonSlugRoute: typeof SoonSlugRoute
   MarketplaceIndexRoute: typeof MarketplaceIndexRoute
@@ -93,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/meeva': {
+      id: '/meeva'
+      path: '/meeva'
+      fullPath: '/meeva'
+      preLoaderRoute: typeof MeevaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/marketplace/': {
@@ -128,6 +157,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MeevaRoute: MeevaRoute,
   MarketplaceSlugRoute: MarketplaceSlugRoute,
   SoonSlugRoute: SoonSlugRoute,
   MarketplaceIndexRoute: MarketplaceIndexRoute,

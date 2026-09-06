@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
+import { BRAND } from "@/lib/brand";
 import { WEEKDAY_LABELS } from "@/lib/constants";
 import { useFocusStore } from "@/lib/store/focus-store";
 import { cn, createId } from "@/lib/utils";
@@ -53,7 +54,7 @@ export default function SettingsPage() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `proactive-export-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.download = `lockin-export-${new Date().toISOString().slice(0, 10)}.json`;
     anchor.click();
     URL.revokeObjectURL(url);
     toast.success("Export downloaded");
@@ -168,7 +169,7 @@ export default function SettingsPage() {
             <div>
               <p className="text-sm font-medium">Dark mode</p>
               <p className="text-xs text-muted-foreground">
-                Proactive is designed dark-first; the light theme is a full
+                {BRAND.name} is designed dark-first; the light theme is a full
                 alternative, not an afterthought.
               </p>
             </div>

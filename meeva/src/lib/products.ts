@@ -19,3 +19,23 @@ export function getSoonBySlug(slug: string): Product | undefined {
 export function productImage(product: Product) {
   return product.image ?? `/assets/products/${product.slug}.jpg`
 }
+
+export function pageScreen(slug: 'marketplace' | 'soon') {
+  return `/assets/screens/${slug}.jpg`
+}
+
+export function getMarqueeScreens() {
+  return [
+    {
+      slug: 'marketplace',
+      label: 'Marketplace',
+      src: pageScreen('marketplace'),
+    },
+    { slug: 'soon', label: 'Coming soon', src: pageScreen('soon') },
+    ...products.map((product) => ({
+      slug: product.slug,
+      label: product.name,
+      src: productImage(product),
+    })),
+  ]
+}
