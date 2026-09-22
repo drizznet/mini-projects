@@ -2,7 +2,7 @@
  * Todo persistence — Prisma Client → Postgres.
  * Services call `todoRepository`; do not import prisma from controllers/services.
  */
-import type { Todo as PrismaTodo } from "../../generated/prisma";
+import type { Todo as PrismaTodo } from "@prisma/client";
 import { prisma } from "../../db/prisma";
 import type { Todo } from "./todo.types";
 
