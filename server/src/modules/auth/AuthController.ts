@@ -46,11 +46,13 @@ export class AuthController extends Controller {
   @Get("me")
   @Security("bearerAuth")
   @SuccessResponse(200, "OK")
-   me(@Request() req: ExpressRequest): MeResponse {
-    if (!req.user) {
-      this.setStatus(401);
-      throw new Error("Unauthorized");
-    }
-    return { user: req.user };
+  async me(@Request() req: ExpressRequest): Promise<MeResponse> {
+     if (!req.user) {
+       this.setStatus(401);
+       throw new Error("Unauthorized");
+     }
+
+    const user = await authService.getUserProfile(req.user.email);
+    return { user };
   }
 }

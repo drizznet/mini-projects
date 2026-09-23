@@ -19,6 +19,8 @@ function toLoginUser(user: {
   };
 }
 
+const main = () => {}
+
 function issueLogin(user: {
   id: string;
   email: string;
@@ -26,7 +28,7 @@ function issueLogin(user: {
   updatedAt: Date;
 }): LoginResponse {
   const token = signToken({
-    sub: user.id,
+    sub: user.email,
     exp: Math.floor(Date.now() / 1000) + TOKEN_TTL_SEC,
   });
   return { token, user: toLoginUser(user) };
@@ -40,6 +42,7 @@ export class AuthService {
     if (!payload) {
       throw new AppError(401, "Invalid or expired token");
     }
+    console.log(payload)
     return { email: payload.sub, role: "admin" };
   }
 
@@ -109,6 +112,16 @@ export class AuthService {
       displayName,
     });
   }
+
+  async getUserProfile(email: string) {
+    const user = await this.authRepository.findByEmailWithProfile(email);
+    if (!user) {
+      throw new AppError(404, "User not found");
+    }
+
+    return user;
+  }
+
 }
 
 export const authService = new AuthService(authRepository);

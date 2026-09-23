@@ -11,6 +11,14 @@ const publicUserSelect = {
   updatedAt: true,
 } as const;
 
+const publicProfileSelect = {
+  userId: true,
+  displayName: true,
+  avatarUrl: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
 const GOOGLE = "google";
 
 export class AuthRepository {
@@ -33,6 +41,18 @@ export class AuthRepository {
   async findByEmail(email: string) {
     return prisma.user.findUnique({
       where: { email },
+    });
+  }
+
+  async findByEmailWithProfile(email: string) {
+    return prisma.user.findUnique({
+      where: { email },
+      select: {
+        ...publicUserSelect,
+        profile: {
+          select: publicProfileSelect,
+        },
+      },
     });
   }
 

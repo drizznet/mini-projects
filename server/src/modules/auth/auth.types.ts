@@ -43,6 +43,22 @@ export interface LoginResponse {
   };
 }
 
+export interface UserProfile {
+  userId: string;
+  avatarUrl: string | null;
+  displayName: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ProfiledUser {
+  id: string;
+  email: string;
+  createdAt: Date;
+  updatedAt: Date;
+  profile: UserProfile | null;
+}
+
 export interface MeResponse {
-  user: AuthUser;
+  user: ProfiledUser;
 }
