@@ -1,0 +1,266 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@source "../**/*.{ts,tsx}";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Single shadcn/ui default Neutral light theme. */
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: #ffffff;
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Compatibility aliases for existing product components. */
+  --card-elevated: var(--muted);
+  --surface-tint: var(--muted);
+  --ink: var(--background);
+  --ink-panel: var(--card);
+  --aqua: var(--primary);
+  --ink-glow: var(--muted);
+  --chart-6: oklch(0.556 0 0);
+  --health-excellent: #15803d;
+  --health-on-track: #1d4ed8;
+  --health-slipping: #854d0e;
+  --health-behind: #c2410c;
+  --health-critical: #b91c1c;
+  --grid-line: oklch(0.145 0 0 / 6%);
+  --motion-fast: 150ms;
+  --motion-ui: 250ms;
+  --motion-reveal: 650ms;
+  --ease-out: cubic-bezier(.2, .7, .2, 1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface-tint: var(--surface-tint);
+  --color-ink: var(--ink);
+  --color-ink-panel: var(--ink-panel);
+  --color-aqua: var(--aqua);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --color-card-elevated: var(--card-elevated);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-health-excellent: var(--health-excellent);
+  --color-health-on-track: var(--health-on-track);
+  --color-health-slipping: var(--health-slipping);
+  --color-health-behind: var(--health-behind);
+  --color-health-critical: var(--health-critical);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) * 2.2);
+
+  --animate-shimmer: shimmer 2.4s linear infinite;
+  --animate-pulse-ring: pulse-ring 2.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes pulse-ring {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.15;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  /* Reserve the scrollbar so opening a dialog does not shift the layout. */
+  html {
+    scrollbar-gutter: stable;
+  }
+}
+
+@utility surface-grid {
+  background-image:
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+@utility text-balance-tight {
+  text-wrap: balance;
+}
+
+/* Neutral atmosphere for existing feature layouts. */
+@utility aurora {
+  background:
+    radial-gradient(
+      ellipse 60% 50% at 8% 0%,
+      color-mix(in oklab, var(--accent) 55%, transparent),
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 45% 40% at 72% 12%,
+      color-mix(in oklab, var(--primary) 18%, transparent),
+      transparent 58%
+    );
+}
+
+/* Number columns in tables/metrics should not jitter as digits change. */
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Marketing treatments built on the shared semantic palette. */
+.landing-shell section[id] { scroll-margin-top: 5rem; }
+.landing-shell .landing-hero {
+  background: radial-gradient(ellipse at 50% 25%, color-mix(in oklab, var(--primary) 12%, var(--background)), var(--background) 70%);
+}
+.landing-shell .landing-tint {
+  background: var(--surface-tint);
+}
+.surface-ink {
+  color: var(--foreground);
+  background: var(--muted);
+}
+.landing-lift {
+  transition: transform var(--motion-ui) var(--ease-out), box-shadow var(--motion-ui) var(--ease-out), border-color var(--motion-ui) var(--ease-out);
+}
+.landing-lift:hover { transform: translateY(-5px); box-shadow: 0 16px 35px #0f172a0d; }
+.landing-shell button:focus-visible, .landing-shell a:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
+}
+.focus-float { animation: focus-float 7s ease-in-out infinite; }
+.focus-bar { animation: focus-grow .9s cubic-bezier(.2,.7,.2,1) both; transform-origin: bottom; }
+.focus-dial { position: relative; box-shadow: inset 0 0 30px #00000005, 0 0 35px #00000005; }
+.focus-dial::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border: 2px solid transparent;
+  border-top-color: var(--aqua);
+  border-right-color: color-mix(in srgb, var(--aqua) 27%, transparent);
+  border-radius: 50%;
+  animation: focus-orbit 16s linear infinite;
+  animation-play-state: paused;
+}
+.focus-dial.is-running::before { animation-play-state: running; }
+.focus-beacon { animation: focus-beacon 2s ease-in-out infinite; }
+@keyframes focus-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes focus-orbit { to { transform: rotate(360deg); } }
+@keyframes focus-grow { from { transform: scaleY(.1); opacity: .2; } to { transform: scaleY(1); opacity: 1; } }
+@keyframes focus-beacon { 50% { box-shadow: 0 0 0 5px #6ee7b720; } }
+@media (prefers-reduced-motion: reduce) {
+  .landing-shell *, .landing-shell *::before, .landing-shell *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .landing-lift:hover { transform: none; }
+}
