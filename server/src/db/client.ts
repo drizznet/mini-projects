@@ -10,6 +10,9 @@
  * const result = await db.query("select 1 as ok");
  */
 import { Pool } from "pg";
+import { configureDatabaseUrl } from "../config/database";
+
+configureDatabaseUrl();
 
 function requireDatabaseUrl(): string {
   const url = process.env.DATABASE_URL?.trim();
