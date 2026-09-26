@@ -10,6 +10,9 @@
  */
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
+import { configureDatabaseUrl } from "../config/database";
+
+configureDatabaseUrl();
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
