@@ -7,7 +7,8 @@ import {
 } from "@/lib/auth";
 
 const APP_ENVIRONMENT = (
-  process.env.NEXT_PUBLIC_ENVIRONMENT ?? "local"
+  process.env.NEXT_PUBLIC_ENVIRONMENT ??
+  (process.env.NODE_ENV === "production" ? "production" : "local")
 ).toLowerCase();
 
 const LOCAL_API_BASE_URL =
