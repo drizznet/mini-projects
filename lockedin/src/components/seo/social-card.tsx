@@ -51,6 +51,10 @@ const styles = {
     fontSize: 28,
     lineHeight: 1.35,
   } satisfies CSSProperties,
+  content: {
+    display: "flex",
+    flexDirection: "column",
+  } satisfies CSSProperties,
   footer: {
     display: "flex",
     alignItems: "center",
@@ -68,7 +72,7 @@ export function SocialCard() {
         <span>{BRAND.name}</span>
       </div>
 
-      <div>
+      <div style={styles.content}>
         <h1 style={styles.headline}>Protect your attention.</h1>
         <p style={styles.description}>{BRAND.description}</p>
       </div>

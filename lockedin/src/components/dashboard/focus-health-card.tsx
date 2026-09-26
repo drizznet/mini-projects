@@ -70,7 +70,7 @@ export function FocusHealthCard({
           <span className="mt-0.5 text-[10px] text-muted-foreground">
             30-day avg {trailingScore}
           </span>
-        </ProgressRing>
+        </ProgressDisplay>
 
         <ul className="w-full flex-1 space-y-3">
           {SCORE_COMPONENT_LABELS.map((component) => {

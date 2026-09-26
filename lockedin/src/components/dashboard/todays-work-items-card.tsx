@@ -152,8 +152,9 @@ export function TodaysWorkItemsCard({
           visibleAllocations.map((allocation) => {
             const item = focusItems.find((entry) => entry.id === allocation.focusItemId);
             const lineage = item ? lineageFor(index, item.id) : undefined;
-            if (!item || !lineage?.goal) return null;
-            const category = categories.find((entry) => entry.id === lineage.goal?.categoryId);
+            const goal = lineage?.goal;
+            if (!item || !goal) return null;
+            const category = categories.find((entry) => entry.id === goal.categoryId);
             const itemSessions = sessions.filter(
               (session) =>
                 session.focusItemId === item.id &&
@@ -167,7 +168,7 @@ export function TodaysWorkItemsCard({
               ? Math.min(1, focusedHours / allocation.plannedHours)
               : 0;
             const complete = progress >= 1;
-            const checkIn = getCheckInState(lineage.goal, dateKey, now);
+            const checkIn = getCheckInState(goal, dateKey, now);
 
             return (
               <motion.article
@@ -187,7 +188,7 @@ export function TodaysWorkItemsCard({
                       <CategoryDot
                         color={category ? `var(--${category.color})` : "var(--chart-1)"}
                       />
-                      {category?.name ?? "Uncategorised"} · {lineage.goal.title}
+                      {category?.name ?? "Uncategorised"} · {goal.title}
                     </p>
                     <h3 className="truncate text-base font-semibold tracking-tight">{item.name}</h3>
                     <p className="text-xs text-muted-foreground">
@@ -242,7 +243,7 @@ export function TodaysWorkItemsCard({
                           openStartDialog({
                             focusItemId: item.id,
                             itemName: item.name,
-                            goalName: lineage.goal.title,
+                            goalName: goal.title,
                             plannedMinutes: Math.max(1, Math.round(allocation.plannedHours * 60)),
                             late: true,
                             lateCheckInMinutes: checkIn.lateByMinutes,
@@ -274,7 +275,7 @@ export function TodaysWorkItemsCard({
                         openStartDialog({
                           focusItemId: item.id,
                           itemName: item.name,
-                          goalName: lineage.goal.title,
+                          goalName: goal.title,
                           plannedMinutes: Math.max(1, Math.round(allocation.plannedHours * 60)),
                           late: false,
                         })
