@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { ActiveSessionBar } from "@/components/layout/active-session-bar";
 import { AppTopbar } from "@/components/layout/app-topbar";
 import { SidebarContent } from "@/components/layout/sidebar-content";
+import { Sidebar, SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useFocusStore } from "@/lib/store/focus-store";
 
@@ -16,15 +17,27 @@ import { useFocusStore } from "@/lib/store/focus-store";
  * compute, so mounting pages before hydration would guarantee a mismatch.
  */
 export function AppShell({ children }: { children: ReactNode }) {
+  return (
+    <SidebarProvider>
+      <AppShellBody>{children}</AppShellBody>
+    </SidebarProvider>
+  );
+}
+
+function AppShellBody({ children }: { children: ReactNode }) {
   const { hydrated } = useFocusStore();
+  const { state } = useSidebar();
+  const collapsed = state === "collapsed";
 
   return (
     <div className="flex min-h-svh">
-      <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-sidebar-border bg-sidebar lg:block">
-        {hydrated ? <SidebarContent /> : <SidebarSkeleton />}
-      </aside>
+      <Sidebar>
+        {hydrated ? (
+          <SidebarContent />
+        ) : <SidebarSkeleton />}
+      </Sidebar>
 
-      <div className="flex h-svh min-w-0 flex-1 flex-col lg:pl-64">
+      <div className={`flex h-svh min-w-0 flex-1 flex-col transition-[padding] duration-200 ease-in-out ${collapsed ? "lg:pl-16" : "lg:pl-64"}`}>
         {hydrated ? (
           <>
             <AppTopbar />

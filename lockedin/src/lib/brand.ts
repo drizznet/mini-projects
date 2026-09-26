@@ -4,5 +4,5 @@ export const BRAND = {
   tagline: "Stay locked in",
   headline: "Work on what matters — before the day decides for you.",
   description:
-    "lockIn is a personal focus system for planning your day, protecting deep-work sessions, tracking interruptions, and seeing where your attention goes.",
+    "lockIn turns meaningful goals into daily time commitments, focused sessions, and clear planned-versus-actual progress.",
 } as const;

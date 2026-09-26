@@ -1,7 +1,9 @@
 # lockIn design system
 
-> **Paused:** The app now uses only the default shadcn Neutral light theme.
-> Custom themes and switching have been removed. The material below is retained
+> **Current palette:** Cream & Purple, shared across the landing page and app:
+> cream `#FAF9F5`, white cards, deep-purple actions `#410D4B`, purple text
+> `#4B1058`, lilac surfaces `#F5EDF7`, and orchid accents `#A032B4`.
+> Theme switching remains removed. The material below is retained
 > as a historical reference for the later UI/design-system update, not current
 > implementation guidance. Current tokens are in `src/app/globals.css`.
 

@@ -105,7 +105,7 @@ export function LandingCalculator() {
                   Illustrative budget split
                 </span>
                 <Button size="sm" variant="subtle" className="h-8 text-xs" asChild>
-                  <Link href="/plan">
+                  <Link href="/dashboard">
                     Create your plan
                     <ArrowRight className="size-3" />
                   </Link>

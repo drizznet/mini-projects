@@ -6,8 +6,18 @@ import {
   getLocalAuthToken,
 } from "@/lib/auth";
 
+const APP_ENVIRONMENT = (
+  process.env.NEXT_PUBLIC_ENVIRONMENT ?? "local"
+).toLowerCase();
+
+const LOCAL_API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL_LOCAL ?? "http://localhost:4400";
+const PRODUCTION_API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL_PRODUCTION ??
+  "https://bobslab.onrender.com";
+
 const BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://bobslab.onrender.com";
+  APP_ENVIRONMENT === "local" ? LOCAL_API_BASE_URL : PRODUCTION_API_BASE_URL;
 
 const api = axios.create({
   baseURL: BASE_URL,

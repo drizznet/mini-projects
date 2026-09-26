@@ -3,13 +3,23 @@ export interface AuthCredentials {
   password: string;
 }
 
-export interface AuthUser {
-  id?: string;
-  email?: string;
-  name?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  [key: string]: unknown;
+export interface UserProfile {
+  userId: string;
+  avatarUrl: string | null;
+  displayName: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LoginUser {
+  id: string;
+  email: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CurrentUser extends LoginUser {
+  profile: UserProfile | null;
 }
 
 export interface AuthResponse {
@@ -18,20 +28,19 @@ export interface AuthResponse {
   token?: string;
   refreshToken?: string;
   refresh_token?: string;
-  user?: AuthUser;
+  user?: LoginUser;
   data?: {
     accessToken?: string;
     access_token?: string;
     token?: string;
     refreshToken?: string;
     refresh_token?: string;
-    user?: AuthUser;
+    user?: LoginUser;
     [key: string]: unknown;
   };
   [key: string]: unknown;
 }
 
-export type CurrentUserResponse =
-  | AuthUser
-  | { user: AuthUser }
-  | { data: AuthUser | { user: AuthUser } };
+export interface MeResponse {
+  user: CurrentUser;
+}

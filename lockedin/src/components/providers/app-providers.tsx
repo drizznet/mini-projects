@@ -49,23 +49,18 @@ export function AppProviders({ children }: { children: ReactNode }) {
   );
 }
 
-/** Ignore legacy palette selections and normalize only the theme setting. */
+/** Keep the document palette in sync with the persisted workspace preference. */
 function ThemeSync() {
-  const { state, hydrated, actions } = useFocusStore();
+  const { state, hydrated } = useFocusStore();
 
   useEffect(() => {
-    document.documentElement.classList.remove("dark");
-    document.documentElement.removeAttribute("data-theme");
+    const dark = hydrated && state.settings.theme === "dark";
+    document.documentElement.classList.toggle("dark", dark);
+    document.documentElement.style.colorScheme = dark ? "dark" : "light";
     document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((meta) => {
-      meta.content = "#ffffff";
+      meta.content = dark ? "#17121a" : "#faf9f5";
     });
-  }, []);
-
-  useEffect(() => {
-    if (hydrated && state.settings.theme !== "light") {
-      actions.updateSettings({ theme: "light" });
-    }
-  }, [hydrated, state.settings.theme, actions]);
+  }, [hydrated, state.settings.theme]);
 
   return null;
 }

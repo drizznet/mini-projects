@@ -5,6 +5,7 @@ import { Target } from "lucide-react";
 
 import { CategoryDot, PriorityBadge } from "@/components/shared/badges";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ProgressDisplay } from "@/components/shared/progress-display";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,7 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import type { GoalProgress } from "@/lib/analytics";
 import { healthFromRatio } from "@/lib/health";
 import { formatHours, percent } from "@/lib/utils";
@@ -62,10 +62,11 @@ export function ActiveGoalsCard({ goals }: { goals: GoalProgress[] }) {
                     </div>
                     <PriorityBadge priority={goal.priority} />
                   </div>
-                  <Progress
-                    value={goal.progress * 100}
+                  <ProgressDisplay
+                    value={goal.progress}
                     className="h-1.5"
-                    indicatorClassName={health.fill}
+                    barClassName={health.fill}
+                    color={health.cssVar}
                   />
                   <div className="flex items-baseline justify-between text-[11px] text-muted-foreground">
                     <span className="tabular">

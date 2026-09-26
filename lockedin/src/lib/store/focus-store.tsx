@@ -21,6 +21,7 @@ import {
 import type {
   Category,
   DailyPlan,
+  DailySession,
   FocusItem,
   FocusSession,
   FocusState,
@@ -28,7 +29,7 @@ import type {
   SessionChecklistEntry,
   Settings,
 } from "../types";
-import { createId, toDateKey } from "../utils";
+import { createId, dateKeyRange, fromDateKey, toDateKey } from "../utils";
 
 /**
  * Client-side source of truth.
@@ -87,6 +88,64 @@ function upsertPlan(
     : [...plans, next].sort((a, b) => a.date.localeCompare(b.date));
 }
 
+function dailySessionsForGoal(goal: Goal): DailySession[] {
+  if (
+    !goal.startDate ||
+    !goal.targetDate ||
+    !goal.dailyCommitmentMinutes ||
+    goal.dailyCommitmentMinutes <= 0
+  ) {
+    return [];
+  }
+
+  return dateKeyRange(fromDateKey(goal.startDate), fromDateKey(goal.targetDate)).map(
+    (date) => ({
+      id: `daily_${goal.id}_${date}`,
+      goalId: goal.id,
+      date,
+      commitmentMinutes: goal.dailyCommitmentMinutes ?? 0,
+      scheduledCheckInEnabled: goal.scheduledCheckInEnabled ?? false,
+      scheduledCheckInTime: goal.scheduledCheckInTime ?? null,
+      strictCheckIn: goal.strictCheckIn ?? false,
+    }),
+  );
+}
+
+function allocateGoalAcrossPlan(
+  plans: DailyPlan[],
+  goal: Goal,
+  focusItemId: string,
+): DailyPlan[] {
+  if (
+    !goal.startDate ||
+    !goal.targetDate ||
+    !goal.dailyCommitmentMinutes ||
+    goal.dailyCommitmentMinutes <= 0
+  ) {
+    return plans;
+  }
+
+  const plannedHours = goal.dailyCommitmentMinutes / 60;
+  return dateKeyRange(
+    fromDateKey(goal.startDate),
+    fromDateKey(goal.targetDate),
+  ).reduce(
+    (nextPlans, date) =>
+      upsertPlan(nextPlans, date, (plan) => ({
+        ...plan,
+        allocations: plan.allocations.some(
+          (allocation) => allocation.focusItemId === focusItemId,
+        )
+          ? plan.allocations
+          : [
+              ...plan.allocations,
+              { focusItemId, plannedHours },
+            ],
+      })),
+    plans,
+  );
+}
+
 function focusReducer(state: FocusState, action: Action): FocusState {
   switch (action.type) {
     case "hydrate":
@@ -120,11 +179,27 @@ function focusReducer(state: FocusState, action: Action): FocusState {
         focusItems: state.focusItems.filter(
           (item) => !goalIds.includes(item.goalId),
         ),
+        dailySessions: state.dailySessions.filter(
+          (session) => !goalIds.includes(session.goalId),
+        ),
       };
     }
 
     case "goal/upsert": {
       const exists = state.goals.some((goal) => goal.id === action.goal.id);
+      const focusItemId = createId("item");
+      const newFocusItem = {
+        id: focusItemId,
+        goalId: action.goal.id,
+        name: action.goal.title,
+        notes: "",
+        priority: action.goal.priority,
+        estimatedDailyHours: (action.goal.dailyCommitmentMinutes ?? 60) / 60,
+        status: "not_started" as const,
+        focusMode: action.goal.workFocusMode ?? "flexible",
+        createdAt: new Date().toISOString(),
+        archivedAt: null,
+      };
       return {
         ...state,
         goals: exists
@@ -132,6 +207,15 @@ function focusReducer(state: FocusState, action: Action): FocusState {
               goal.id === action.goal.id ? action.goal : goal,
             )
           : [...state.goals, action.goal],
+        dailySessions: exists
+          ? state.dailySessions
+          : [...state.dailySessions, ...dailySessionsForGoal(action.goal)],
+        plans: exists
+          ? state.plans
+          : allocateGoalAcrossPlan(state.plans, action.goal, focusItemId),
+        focusItems: exists
+          ? state.focusItems
+          : [...state.focusItems, newFocusItem],
       };
     }
 
@@ -141,6 +225,9 @@ function focusReducer(state: FocusState, action: Action): FocusState {
         goals: state.goals.filter((goal) => goal.id !== action.id),
         focusItems: state.focusItems.filter(
           (item) => item.goalId !== action.id,
+        ),
+        dailySessions: state.dailySessions.filter(
+          (session) => session.goalId !== action.id,
         ),
       };
 
@@ -252,8 +339,17 @@ function focusReducer(state: FocusState, action: Action): FocusState {
       };
 
     case "session/resume":
+      if (
+        state.sessions.some(
+          (session) =>
+            session.id !== action.id && session.status === "running",
+        )
+      ) {
+        return state;
+      }
       return {
         ...state,
+        activeSessionId: action.id,
         sessions: state.sessions.map((session) => {
           if (session.id !== action.id || session.status !== "paused") {
             return session;
@@ -340,6 +436,8 @@ export interface StartSessionInput {
   focusItemId: string;
   plannedMinutes: number;
   checklist: SessionChecklistEntry[];
+  dailySessionId?: string;
+  lateCheckInMinutes?: number;
 }
 
 export interface FocusStoreValue {
@@ -404,7 +502,12 @@ export function FocusStoreProvider({
       // A version mismatch means the shape changed; reseed rather than migrate.
       const usable =
         persisted && persisted.version === STATE_VERSION ? persisted : null;
-      dispatch({ type: "hydrate", state: usable ?? createSeedState() });
+      dispatch({
+        type: "hydrate",
+        state: usable
+          ? { ...usable, dailySessions: usable.dailySessions ?? [] }
+          : createSeedState(),
+      });
       setHydrated(true);
     });
     return () => {
@@ -429,6 +532,8 @@ export function FocusStoreProvider({
       session: {
         id,
         focusItemId: input.focusItemId,
+        dailySessionId: input.dailySessionId ?? null,
+        lateCheckInMinutes: input.lateCheckInMinutes,
         plannedMinutes: input.plannedMinutes,
         startedAt: new Date().toISOString(),
         endedAt: null,

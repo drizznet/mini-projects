@@ -94,6 +94,7 @@ export function CategoryDialog({
               onChange={(event) => setName(event.target.value)}
               placeholder="Client Work"
               autoFocus
+              className="border-0 bg-secondary/45 shadow-none focus-visible:ring-1"
             />
           </div>
 
@@ -104,7 +105,7 @@ export function CategoryDialog({
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               placeholder="Billable delivery for external clients."
-              className="min-h-20"
+              className="min-h-20 resize-none border-0 bg-secondary/45 shadow-none focus-visible:ring-1"
             />
           </div>
 

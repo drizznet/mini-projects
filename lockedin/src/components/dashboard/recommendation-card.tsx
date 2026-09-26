@@ -32,7 +32,7 @@ export function RecommendationCard({
   const extras = compact ? rest.slice(0, 2) : rest;
 
   return (
-    <Card className="h-full min-h-0 overflow-hidden">
+    <Card className="h-full min-h-0 overflow-hidden border-primary/10 bg-card-elevated/60 shadow-sm">
       <CardHeader>
         <div>
           <CardTitle className="flex items-center gap-1.5">
@@ -54,7 +54,7 @@ export function RecommendationCard({
             title="Nothing to recommend yet"
             description="Create a goal with at least one focus item and the engine will start ranking your work."
             action={
-              <Button size="sm" asChild>
+              <Button size="sm" variant="subtle" asChild>
                 <Link href="/goals">Create a goal</Link>
               </Button>
             }
@@ -90,7 +90,7 @@ export function RecommendationCard({
               </ul>
 
               <div className="mt-4 flex items-center gap-2">
-                <Button size="sm" asChild>
+                <Button size="sm" variant="subtle" asChild>
                   <Link
                     href={`/focus?item=${top.item.id}&minutes=${top.suggestedMinutes}`}
                   >

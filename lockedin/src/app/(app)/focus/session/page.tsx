@@ -202,6 +202,9 @@ export default function ActiveSessionPage() {
                 <CardTitle>Session detail</CardTitle>
                 <CardDescription>
                   Started {formatTime(session.startedAt)}
+                  {session.lateCheckInMinutes
+                    ? ` · Late check-in by ${session.lateCheckInMinutes}m`
+                    : ""}
                 </CardDescription>
               </div>
             </CardHeader>
@@ -313,8 +316,8 @@ export default function ActiveSessionPage() {
         reasons={state.settings.pauseReasons}
         onConfirm={(reasonId, note) => {
           actions.pauseSession(session.id, reasonId, note);
-          toast.info("Session paused", {
-            description: "The clock stops until you resume.",
+          toast.info("Break started", {
+            description: "Break time is tracked separately from focus time.",
           });
         }}
       />
@@ -324,22 +327,17 @@ export default function ActiveSessionPage() {
         onOpenChange={setReflectionOpen}
         elapsedMs={elapsed}
         interruptions={interruptions}
-        onComplete={(rating, reflection) => {
+        onComplete={() => {
           actions.endSession(session.id, {
             // Sessions that never reached a third of their target read as
             // abandoned in the analytics, regardless of how they were closed.
             status: elapsed < plannedMs / 3 ? "abandoned" : "completed",
-            rating,
-            reflection,
+            rating: null,
+            reflection: "",
           });
           toast.success("Session logged", {
             description: `${formatDuration(elapsed)} of focus recorded.`,
           });
-          router.push("/");
-        }}
-        onDiscard={() => {
-          actions.discardSession(session.id);
-          toast.info("Session discarded");
           router.push("/");
         }}
       />

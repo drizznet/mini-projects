@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   ArrowRight,
   CalendarRange,
+  Check,
   Gauge,
   Shield,
   Sparkles,
@@ -64,89 +65,21 @@ export function LandingPage() {
   return (
     <LandingMotion>
     <div className="min-h-svh bg-background text-foreground">
-      <header className="sticky top-0 z-30 border-b border-border/70 bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <BrandLockup href="/" showSubtitle={false} />
-          <nav aria-label="Main navigation" className="hidden items-center gap-5 text-xs font-medium text-muted-foreground lg:flex">
-            <a href="#product" className="transition-colors hover:text-foreground">
-              Product
-            </a>
-            <a href="#comparison" className="transition-colors hover:text-foreground">
-              Comparison
-            </a>
-            <a href="#pillars" className="transition-colors hover:text-foreground">
-              Pillars
-            </a>
-            <a href="#calculator" className="transition-colors hover:text-foreground">
-              Budget Calculator
-            </a>
-            <a href="#how" className="transition-colors hover:text-foreground">
-              How it works
-            </a>
-            <a href="#privacy" className="transition-colors hover:text-foreground">
-              Privacy
-            </a>
-            <a href="#faq" className="transition-colors hover:text-foreground">
-              FAQ
-            </a>
-          </nav>
-          <div className="flex items-center gap-2">
-            <Button size="sm" asChild>
-              <Link href="/dashboard">
-                Open app
-                <ArrowRight className="size-3.5" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </header>
 
       <main>
-        {/* Hero Section */}
-        <section className="landing-hero relative overflow-hidden border-b border-border/40">
-          <div className="aurora pointer-events-none absolute inset-0" />
-          <div className="surface-grid pointer-events-none absolute inset-0 opacity-40" />
-          <div className="relative mx-auto flex max-w-6xl flex-col items-center text-center px-4 pt-16 pb-10 sm:px-6 sm:pt-24 sm:pb-16">
-            <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/8 px-3.5 py-1 text-[11px] font-medium tracking-wide text-primary uppercase">
-              Personal focus system
-            </p>
-            <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-balance sm:text-6xl sm:leading-[1.05]">
-              {BRAND.headline}
-            </h1>
-            <p className="mt-5 max-w-2xl text-base text-muted-foreground sm:text-lg">
-              {BRAND.description}
-            </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Button size="lg" asChild>
-                <Link href="/dashboard">
-                  Open {BRAND.name}
-                  <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="subtle" asChild>
-                <a href="#how">See how it works</a>
-              </Button>
-            </div>
-            <p className="mt-4 text-xs text-muted-foreground">
-              Runs in your browser. No account required to start.
-            </p>
-            <LandingHero />
-            <div className="mt-7 flex flex-wrap justify-center gap-x-8 gap-y-3 text-[11px] font-medium text-muted-foreground">
-              <span className="flex items-center gap-2"><CalendarRange className="size-3.5 text-primary" /> Plan with intention</span>
-              <span className="flex items-center gap-2"><Timer className="size-3.5 text-primary" /> Protect your attention</span>
-              <span className="flex items-center gap-2"><Gauge className="size-3.5 text-primary" /> See your progress</span>
-            </div>
-          </div>
-        </section>
+        <LandingHero />
 
         {/* Product Preview Section */}
-        <section id="product" className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-          <div className="mx-auto mb-8 max-w-xl text-center">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-primary">Your day, in focus</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">A clear plan. A calmer workspace.</h2>
-            <p className="mt-3 text-sm text-muted-foreground">A sample day in lockIn. Make your own when you open the app.</p>
+        <section id="product" className="px-4 py-12 sm:px-6 sm:py-20">
+          <div className="workspace-showcase relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-primary/10 px-5 py-10 sm:rounded-[2.5rem] sm:p-12 lg:p-16">
+            <div className="pointer-events-none absolute -top-32 -right-32 size-96 rounded-full border border-primary/10" aria-hidden="true" />
+            <div className="relative mb-10 grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:items-end lg:gap-16">
+              <div><p className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[.2em] text-primary"><span className="h-px w-7 bg-primary/40" />Your day, in focus</p><h2 className="mt-5 max-w-lg text-3xl leading-[1.1] font-semibold tracking-[-.04em] sm:text-5xl">A place for your plans.<br /><span className="text-chart-1">Space for your mind.</span></h2></div>
+              <div><p className="max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base">Bring your priorities into one calm view. See what matters, what you have time for, and where to begin.</p><a href="/dashboard" className="mt-5 inline-flex min-h-10 items-center gap-2 text-sm font-semibold hover:text-chart-1">Build your day<ArrowRight className="size-4" /></a></div>
+            </div>
+            <ProductPreview />
+            <div className="relative mt-7 flex flex-wrap items-center justify-between gap-4 text-xs text-muted-foreground"><p className="flex items-center gap-2"><Shield className="size-3.5 text-primary" />A little structure. A lot less noise.</p><span className="font-mono text-[10px]">A sample day in lockIn</span></div>
           </div>
-          <ProductPreview />
         </section>
 
         {/* Why lockIn Section */}
@@ -283,17 +216,14 @@ export function LandingPage() {
 
 function ProductPreview() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-xs">
-      <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-        <span className="size-2.5 rounded-full bg-health-critical/80" />
-        <span className="size-2.5 rounded-full bg-health-slipping/80" />
-        <span className="size-2.5 rounded-full bg-health-excellent/80" />
-        <span className="ml-3 text-[11px] text-muted-foreground">
-          {BRAND.name} · Today
-        </span>
+    <div className="workspace-preview relative overflow-hidden rounded-2xl border border-primary/10 bg-card sm:rounded-3xl">
+      <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-4 sm:px-7">
+        <div className="flex items-center gap-3"><span className="grid size-7 place-items-center rounded-lg bg-primary text-xs font-semibold text-primary-foreground">in</span><span className="text-xs font-semibold">Your workspace <span className="mx-2 text-border">/</span><span className="font-normal text-muted-foreground">Today</span></span></div>
+        <span className="rounded-full bg-muted px-3 py-1 text-[9px] font-medium uppercase tracking-wider text-muted-foreground">Preview</span>
       </div>
-      <div className="grid gap-4 p-4 lg:grid-cols-5">
-        <div className="space-y-3 rounded-xl border border-border/80 bg-card-elevated/50 p-4 lg:col-span-3">
+      <div className="px-5 pt-6 sm:px-7 sm:pt-8"><p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Your intention</p><p className="mt-2 text-xl font-semibold tracking-tight sm:text-2xl">Make meaningful progress. Leave room to breathe.</p></div>
+      <div className="grid gap-5 p-5 sm:p-7 lg:grid-cols-5">
+        <div className="space-y-5 rounded-2xl border border-border bg-background p-5 sm:p-6 lg:col-span-3">
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold">Today&apos;s planned work</p>
             <span className="text-[11px] text-muted-foreground">3 items</span>
@@ -303,14 +233,14 @@ function ProductPreview() {
             { name: "Ship the onboarding flow", done: 0.4, plan: 1.5 },
             { name: "Review last week's debt", done: 0, plan: 0.5 },
           ].map((row) => (
-            <div key={row.name} className="space-y-1.5">
+            <div key={row.name} className="space-y-3">
               <div className="flex items-center justify-between gap-3 text-xs">
-                <span className="truncate">{row.name}</span>
-                <span className="tabular text-muted-foreground">
+                <span className="min-w-0 leading-relaxed">{row.name}</span>
+                <span className="shrink-0 tabular-nums text-[10px] text-muted-foreground">
                   {row.done}h / {row.plan}h
                 </span>
               </div>
-              <div className="h-1 overflow-hidden rounded-full bg-secondary">
+              <div className="h-1.5 overflow-hidden rounded-full bg-secondary">
                 <div
                   className="h-full rounded-full bg-primary"
                   style={{ width: `${Math.min(100, (row.done / row.plan) * 100)}%` }}
@@ -319,16 +249,17 @@ function ProductPreview() {
             </div>
           ))}
         </div>
-        <div className="rounded-xl border border-primary/25 bg-primary/6 p-4 lg:col-span-2">
+        <div className="flex flex-col rounded-2xl border border-primary/15 bg-muted p-5 sm:p-6 lg:col-span-2">
           <p className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
             <Timer className="size-3.5 text-primary" />
             Next up
           </p>
-          <p className="mt-3 text-sm font-semibold">Write the architecture note</p>
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="mt-4 text-lg font-semibold tracking-tight">Write the architecture note</p>
+          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
             Highest remaining budget · untouched for 18 hours
           </p>
-          <Button size="sm" className="mt-4" asChild><Link href="/dashboard">Plan your first session<ArrowRight className="size-3.5" /></Link></Button>
+          <div className="mt-5 flex items-center gap-2 text-[10px] text-muted-foreground"><Check className="size-3.5 text-primary" />One clear next step</div>
+          <Button size="sm" className="mt-5 h-10 w-full rounded-xl" asChild><Link href="/dashboard">Plan your first session<ArrowRight className="size-3.5" /></Link></Button>
         </div>
       </div>
     </div>

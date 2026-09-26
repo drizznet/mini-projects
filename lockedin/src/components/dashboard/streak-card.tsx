@@ -2,6 +2,7 @@
 
 import { Award, Flame, Medal, Trophy } from "lucide-react";
 
+import { ProgressDisplay } from "@/components/shared/progress-display";
 import {
   Card,
   CardContent,
@@ -9,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import {
   Tooltip,
   TooltipContent,
@@ -120,9 +120,10 @@ export function StreakCard({
               {percent(streaks.weeklyConsistency)}
             </span>
           </div>
-          <Progress
-            value={streaks.weeklyConsistency * 100}
-            indicatorClassName={consistencyHealth.fill}
+          <ProgressDisplay
+            value={streaks.weeklyConsistency}
+            barClassName={consistencyHealth.fill}
+            color={consistencyHealth.cssVar}
           />
         </div>
 

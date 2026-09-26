@@ -2,12 +2,11 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { CircleSlash2, MessageSquareQuote, Star, Timer, Zap } from "lucide-react";
+import { CircleSlash2, MessageSquareQuote, Play, Timer, Zap } from "lucide-react";
 
 import { CategoryDot } from "@/components/shared/badges";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
-import { StatCard } from "@/components/shared/stat-card";
 import { RatingStars } from "@/components/sessions/rating-stars";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,6 +27,7 @@ import {
 import { useFocusData } from "@/hooks/use-focus-data";
 import { countInterruptions, sessionActiveMs } from "@/lib/analytics";
 import { lineageFor } from "@/lib/selectors";
+import { useFocusStore } from "@/lib/store/focus-store";
 import type { FocusSession } from "@/lib/types";
 import {
   cn,
@@ -35,7 +35,6 @@ import {
   formatRelativeDay,
   formatTime,
   groupBy,
-  round,
   toDateKey,
 } from "@/lib/utils";
 
@@ -43,7 +42,8 @@ type StatusFilter = "all" | "completed" | "abandoned";
 
 /** Session history grouped by day, with reflections and pause detail. */
 export default function SessionsPage() {
-  const { state, index, now, rangeSessions, summary } = useFocusData({
+  const { actions } = useFocusStore();
+  const { state, index, now, rangeSessions } = useFocusData({
     tickMs: 60_000,
   });
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -71,54 +71,17 @@ export default function SessionsPage() {
   );
   const dayKeys = Object.keys(byDay).sort((a, b) => b.localeCompare(a));
 
-  const rated = rangeSessions.filter((session) => session.productivityRating);
-  const averageRating = rated.length
-    ? round(
-        rated.reduce(
-          (total, session) => total + (session.productivityRating ?? 0),
-          0,
-        ) / rated.length,
-        1,
-      )
-    : 0;
-
   return (
     <div className="space-y-6">
       <PageHeader
         title="Sessions"
-        description="Every focus block from the last eight weeks, with the reflection you wrote when you closed it."
+        description="A history of the focus sessions attached to your work items, with reflections and pause detail."
         actions={
           <Button size="sm" asChild>
             <Link href="/focus">Start a session</Link>
           </Button>
         }
       />
-
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="Sessions"
-          value={summary.sessionCount}
-          hint={`${summary.completedSessions} completed`}
-          icon={Timer}
-        />
-        <StatCard
-          label="Focused time"
-          value={`${summary.actualHours}h`}
-          hint={`Average block ${summary.averageSessionMinutes} min`}
-        />
-        <StatCard
-          label="Average rating"
-          value={averageRating || "—"}
-          hint={`${rated.length} sessions rated`}
-          icon={Star}
-        />
-        <StatCard
-          label="Interruptions"
-          value={summary.interruptions}
-          hint={`${round(summary.interruptions / Math.max(summary.actualHours, 1), 2)} per focused hour`}
-          icon={Zap}
-        />
-      </section>
 
       <div className="flex flex-col gap-2 sm:flex-row">
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
@@ -184,6 +147,15 @@ export default function SessionsPage() {
                       session={session}
                       lineage={lineageFor(index, session.focusItemId)}
                       interruptions={countInterruptions(state, session)}
+                      canResume={
+                        session.status === "paused" &&
+                        !state.sessions.some(
+                          (entry) =>
+                            entry.id !== session.id &&
+                            entry.status === "running",
+                        )
+                      }
+                      onResume={() => actions.resumeSession(session.id)}
                       pauseLabel={(reasonId) =>
                         state.settings.pauseReasons.find(
                           (option) => option.id === reasonId,
@@ -206,12 +178,16 @@ function SessionCard({
   session,
   lineage,
   interruptions,
+  canResume,
+  onResume,
   pauseLabel,
   now,
 }: {
   session: FocusSession;
   lineage: ReturnType<typeof lineageFor>;
   interruptions: number;
+  canResume: boolean;
+  onResume: () => void;
   pauseLabel: (reasonId: string) => string;
   now: number;
 }) {
@@ -252,6 +228,11 @@ function SessionCard({
                 Abandoned
               </Badge>
             ) : null}
+            {session.status === "paused" ? (
+              <Badge variant="outline">Paused</Badge>
+            ) : session.status === "running" ? (
+              <Badge variant="secondary">Live</Badge>
+            ) : null}
             <span
               className={cn(
                 "tabular text-sm font-semibold",
@@ -278,10 +259,12 @@ function SessionCard({
             >
               <Zap className="size-2.5" />
               {pauseLabel(pause.reasonId)}
-              {pause.endedAt ? (
+              {pause.startedAt ? (
                 <span className="tabular opacity-70">
                   {formatDuration(
-                    new Date(pause.endedAt).getTime() -
+                    (pause.endedAt
+                      ? new Date(pause.endedAt).getTime()
+                      : now) -
                       new Date(pause.startedAt).getTime(),
                   )}
                 </span>
@@ -303,6 +286,25 @@ function SessionCard({
           {interruptions} unplanned interruption
           {interruptions === 1 ? "" : "s"} counted against this session
         </p>
+      ) : null}
+
+      {session.status === "paused" ? (
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/60 pt-3">
+          <p className="text-xs text-muted-foreground">
+            {canResume
+              ? "Paused time is excluded from your focus total."
+              : "Another session is running right now."}
+          </p>
+          <Button
+            size="sm"
+            variant="subtle"
+            disabled={!canResume}
+            onClick={onResume}
+          >
+            <Play className="size-3.5" />
+            Resume
+          </Button>
+        </div>
       ) : null}
     </article>
   );

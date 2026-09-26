@@ -463,7 +463,9 @@ function buildSettings(): Settings {
     workdays: [1, 2, 3, 4, 5],
     defaultSessionMinutes: 60,
     theme: "light",
+    goalProgressDisplay: "ring",
     sessionIslandPosition: "bottom",
+    sessionIslandDisplay: "floating",
     checklistTemplate: DEFAULT_CHECKLIST,
     pauseReasons: DEFAULT_PAUSE_REASONS,
     musicLinks: DEFAULT_MUSIC_LINKS,
@@ -655,6 +657,7 @@ export function createSeedState(now: Date = new Date()): FocusState {
     goals,
     focusItems,
     plans,
+    dailySessions: [],
     sessions,
     activeSessionId: null,
   };
@@ -669,6 +672,7 @@ export function createEmptyState(): FocusState {
     goals: [],
     focusItems: [],
     plans: [],
+    dailySessions: [],
     sessions: [],
     activeSessionId: null,
   };

@@ -1,6 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
 
-import { BRAND } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
 /** Geometric lock with a focus-point keyhole — lock in on one thing. */
@@ -42,8 +42,6 @@ export function BrandMark({ className }: { className?: string }) {
 
 export function BrandLockup({
   href = "/dashboard",
-  subtitle,
-  showSubtitle = true,
   className,
 }: {
   href?: string;
@@ -53,15 +51,14 @@ export function BrandLockup({
 }) {
   return (
     <Link href={href} className={cn("flex items-center gap-2.5", className)}>
-      <BrandMark />
-      <div className="leading-tight">
-        <p className="text-sm font-semibold tracking-tight">{BRAND.name}</p>
-        {showSubtitle ? (
-          <p className="text-[11px] text-muted-foreground">
-            {subtitle ?? BRAND.byline}
-          </p>
-        ) : null}
-      </div>
+      <Image
+        src="/assets/brand/lockin-logo-v1.png"
+        alt="lockIn"
+        width={132}
+        height={53}
+        priority
+        className="h-auto w-[132px] object-contain dark:brightness-0 dark:invert"
+      />
     </Link>
   );
 }

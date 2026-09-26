@@ -2,7 +2,7 @@
 
 import { Info } from "lucide-react";
 
-import { ProgressRing } from "@/components/shared/progress-ring";
+import { ProgressDisplay } from "@/components/shared/progress-display";
 import {
   Card,
   CardContent,
@@ -10,7 +10,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import {
   Tooltip,
   TooltipContent,
@@ -55,11 +54,12 @@ export function FocusHealthCard({
       </CardHeader>
 
       <CardContent className="flex flex-col items-center gap-6 sm:flex-row sm:items-center">
-        <ProgressRing
+        <ProgressDisplay
           value={today.focusScore / 100}
           size={152}
           strokeWidth={11}
           color={health.cssVar}
+          barClassName={health.fill}
         >
           <span className="tabular text-3xl font-semibold">
             {today.focusScore}
@@ -91,10 +91,13 @@ export function FocusHealthCard({
                     </span>
                   </span>
                 </div>
-                <Progress
-                  value={value * 100}
+                <ProgressDisplay
+                  value={value}
+                  size={36}
+                  strokeWidth={5}
                   className="h-1"
-                  indicatorClassName={healthFromScore(value * 100).fill}
+                  barClassName={healthFromScore(value * 100).fill}
+                  color={healthFromScore(value * 100).cssVar}
                 />
               </li>
             );

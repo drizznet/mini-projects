@@ -59,15 +59,29 @@ function FocusSetup() {
   });
 
   const requestedItemId = params.get("item");
+  const requestedDailySessionId = params.get("dailySession");
+  const requestedGoalId = params.get("goal");
   const requestedMinutes = Number(params.get("minutes"));
+  const lateCheckInMinutes = Number(params.get("lateBy"));
+  const lateCheckIn = params.get("lateCheckIn") === "1";
+  const requestedDailySession = state.dailySessions.find(
+    (session) => session.id === requestedDailySessionId,
+  );
+  const requestedGoalItem = state.focusItems.find(
+    (item) =>
+      item.goalId === (requestedDailySession?.goalId ?? requestedGoalId) &&
+      !item.archivedAt &&
+      item.status !== "done",
+  );
 
   const [selectedItemId, setSelectedItemId] = useState<string | null>(
-    requestedItemId,
+    requestedItemId ?? requestedGoalItem?.id ?? null,
   );
   const [minutes, setMinutes] = useState<number>(
-    Number.isFinite(requestedMinutes) && requestedMinutes > 0
-      ? requestedMinutes
-      : state.settings.defaultSessionMinutes,
+    requestedDailySession?.commitmentMinutes ??
+      (Number.isFinite(requestedMinutes) && requestedMinutes > 0
+        ? requestedMinutes
+        : state.settings.defaultSessionMinutes),
   );
 
   const template = state.settings.checklistTemplate.filter(
@@ -83,6 +97,18 @@ function FocusSetup() {
 
   const available = activeItems(state);
   const lineage = selectedItemId ? lineageFor(index, selectedItemId) : undefined;
+  const currentSession = state.sessions.find(
+    (session) => session.id === state.activeSessionId,
+  );
+  const currentSessionLineage = currentSession
+    ? lineageFor(index, currentSession.focusItemId)
+    : undefined;
+  const cannotSwitchSession =
+    currentSession?.status === "running" ||
+    (currentSession?.status === "paused" &&
+      currentSessionLineage?.item.focusMode === "continuous");
+  const switchingFromPausedSession =
+    currentSession?.status === "paused" && !cannotSwitchSession;
 
   const readyCount = template.filter((entry) => checked[entry.id]).length;
   const allReady = template.length > 0 && readyCount === template.length;
@@ -91,22 +117,31 @@ function FocusSetup() {
     if (!selectedItemId) return;
     actions.startSession({
       focusItemId: selectedItemId,
-      plannedMinutes: minutes,
+      plannedMinutes: requestedDailySession?.commitmentMinutes ?? minutes,
       checklist: template.map((entry) => ({
         id: entry.id,
         label: entry.label,
         checked: Boolean(checked[entry.id]),
       })),
+      dailySessionId: requestedDailySessionId ?? undefined,
+      lateCheckInMinutes:
+        lateCheckIn && Number.isFinite(lateCheckInMinutes)
+          ? Math.max(1, lateCheckInMinutes)
+          : undefined,
     });
     router.push("/focus/session");
   };
 
-  if (state.activeSessionId) {
+  if (cannotSwitchSession) {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Session already running"
-          description="Finish or discard the current session before starting another one."
+          title={currentSession?.status === "paused" ? "Continuous work is paused" : "Session already running"}
+          description={
+            currentSession?.status === "paused"
+              ? "This work item is set to one continuous block. Resume or end it before starting another session."
+              : "Finish or pause the current session before starting another one."
+          }
         />
         <Card>
           <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
@@ -114,8 +149,9 @@ function FocusSetup() {
               <Radio className="size-5 animate-pulse text-primary" />
             </span>
             <p className="text-sm text-muted-foreground">
-              {BRAND.name} only tracks one session at a time so the numbers stay
-              honest.
+              {currentSession?.status === "paused"
+                ? "This work item is protected as one continuous block."
+                : `${BRAND.name} keeps one running session at a time so the numbers stay honest.`}
             </p>
             <Button asChild>
               <Link href="/focus/session">
@@ -140,6 +176,20 @@ function FocusSetup() {
         description="Pick the work, set the block length, then clear the runway. Preparation is the cheapest way to protect a session."
       />
 
+      {switchingFromPausedSession ? (
+        <Card className="border-primary/20 bg-primary/[0.035]">
+          <CardContent className="flex items-start gap-3 py-4 text-sm">
+            <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+              <Radio className="size-3.5" />
+            </span>
+            <p className="text-muted-foreground">
+              Your previous work item is paused. You can focus on this one now;
+              resume the paused session later from Sessions.
+            </p>
+          </CardContent>
+        </Card>
+      ) : null}
+
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <Card>
@@ -159,7 +209,7 @@ function FocusSetup() {
                   description="Focus items are the concrete work inside a goal. Create one to start a session."
                   action={
                     <Button size="sm" asChild>
-                      <Link href="/focus-items">Create a focus item</Link>
+                      <Link href="/goals">Create a goal</Link>
                     </Button>
                   }
                 />

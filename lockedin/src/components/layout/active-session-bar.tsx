@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ArrowRight,
   GripHorizontal,
@@ -27,6 +28,7 @@ import { formatClock } from "@/lib/utils";
  */
 export function ActiveSessionBar() {
   const { state, actions } = useFocusStore();
+  const pathname = usePathname();
   const now = useNow(1000);
   const position = islandPosition(state.settings.sessionIslandPosition);
   const { panelRef, point, target, handleProps } = useDraggableIsland(position, (next) => {
@@ -37,7 +39,11 @@ export function ActiveSessionBar() {
   const activeSessions = state.sessions.filter(
     (session) => session.status === "running" || session.status === "paused",
   );
-  if (!activeSessions.length) return null;
+  if (
+    !activeSessions.length ||
+    state.settings.sessionIslandDisplay === "navbar" ||
+    pathname === "/dashboard"
+  ) return null;
 
   const index = buildIndex(state);
 

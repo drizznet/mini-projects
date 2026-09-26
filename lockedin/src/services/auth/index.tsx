@@ -5,8 +5,8 @@ import { hasLocalAuthSession } from "@/lib/auth";
 import type {
   AuthCredentials,
   AuthResponse,
-  AuthUser,
-  CurrentUserResponse,
+  CurrentUser,
+  MeResponse,
 } from "./types";
 
 export const CURRENT_USER_QUERY_KEY = ["auth", "me"] as const;
@@ -27,23 +27,9 @@ export async function register(credentials: AuthCredentials) {
   return data;
 }
 
-export async function getCurrentUser(): Promise<AuthUser> {
-  const { data } = await api.get<CurrentUserResponse>("/api/auth/me");
-  const payload: unknown = data;
-
-  if (isRecord(payload) && isRecord(payload.user)) {
-    return payload.user as AuthUser;
-  }
-  if (isRecord(payload) && isRecord(payload.data)) {
-    return isRecord(payload.data.user)
-      ? (payload.data.user as AuthUser)
-      : (payload.data as AuthUser);
-  }
-  return payload as AuthUser;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
+export async function getCurrentUser(): Promise<CurrentUser> {
+  const { data } = await api.get<MeResponse>("/api/auth/me");
+  return data.user;
 }
 
 /** Server profile state lives in the React Query cache instead of a duplicate store. */

@@ -102,14 +102,15 @@ sitemap implementation can reuse the same route policy.
 ### Current gap
 
 The site URL is configured through `NEXT_PUBLIC_SITE_URL`, with a local fallback
-for development. The social image is intentionally left for Phase 3.
+for development. Shareable brand assets are tracked in Phase 3.
 
 ---
 
-## Phase 3 — Add shareable brand assets
+## Phase 3 — Add shareable brand assets ✅
 
 ### Files to consider
 
+- `public/assets/brand/lockin-logo-v1.png`
 - `src/app/opengraph-image.tsx`
 - `src/app/twitter-image.tsx`
 - `src/app/icon.tsx`
@@ -118,13 +119,14 @@ for development. The social image is intentionally left for Phase 3.
 
 ### Tasks
 
-- [ ] Create an Open Graph image
-- [ ] Decide whether Twitter needs a separate image
-- [ ] Refine the application icon
-- [ ] Add an Apple touch icon if needed
-- [ ] Add a web manifest
-- [ ] Use readable text at social preview sizes
-- [ ] Keep branding consistent with the landing page
+- [x] Create an Open Graph image
+- [x] Decide whether Twitter needs a separate image
+- [x] Refine the application icon
+- [x] Add an Apple touch icon if needed
+- [x] Add a web manifest
+- [x] Generate a reusable `lockIn` logo asset for SEO and social surfaces
+- [x] Use readable text at social preview sizes
+- [x] Keep branding consistent with the landing page
 
 ### Open Graph image content
 
@@ -133,6 +135,20 @@ for development. The social image is intentionally left for Phase 3.
 - One short product description
 - High contrast
 - Readable text at small preview sizes
+
+### Implementation notes
+
+The landing page now uses a generated `public/og-image.png` for Open Graph and
+Twitter previews, with the same lockIn colors and headline. It also has
+generated route fallbacks, an Apple icon, and a web manifest. The route images
+use the same `SocialCard` component so the previews stay consistent.
+
+The reusable logo source is `public/assets/brand/lockin-logo-v1.png`. Phase 3
+implementation should use this asset, or a rasterized derivative of its mark,
+where generated SEO surfaces need the actual brand identity: `SocialCard`, the
+application icon, the Apple icon, and any future favicon or manifest icon
+variants. Keep the exact product styling as `lockIn` with a lowercase `l` and
+capital `I`; do not use `lockedIN` or the previous padlock/keyhole mark.
 
 ---
 

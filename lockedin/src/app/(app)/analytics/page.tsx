@@ -19,6 +19,7 @@ import { FocusScoreChart } from "@/components/charts/focus-score-chart";
 import { SimpleBarChart } from "@/components/charts/simple-bar-chart";
 import { CategoryDot } from "@/components/shared/badges";
 import { PageHeader } from "@/components/shared/page-header";
+import { ProgressDisplay } from "@/components/shared/progress-display";
 import { StatCard } from "@/components/shared/stat-card";
 import {
   Card,
@@ -27,7 +28,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useFocusData } from "@/hooks/use-focus-data";
 import {
@@ -348,10 +348,11 @@ export default function AnalyticsPage() {
                           {entry.count}× · {entry.minutes}m
                         </span>
                       </div>
-                      <Progress
-                        value={share * 100}
+                      <ProgressDisplay
+                        value={share}
                         className="h-1.5"
-                        indicatorClassName="bg-health-behind"
+                        barClassName="bg-health-behind"
+                        color="var(--health-behind)"
                       />
                     </li>
                   );
@@ -388,10 +389,10 @@ export default function AnalyticsPage() {
                           {percent(goal.progress)}
                         </span>
                       </div>
-                      <Progress
-                        value={goal.progress * 100}
+                      <ProgressDisplay
+                        value={goal.progress}
                         className="h-1.5"
-                        indicatorStyle={{ backgroundColor: goal.color }}
+                        color={goal.color}
                       />
                     </li>
                   );

@@ -2,7 +2,18 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { ListChecks, Pencil, Plus, Target, Trash2 } from "lucide-react";
+import {
+  CalendarDays,
+  Eye,
+  LayoutGrid,
+  ListChecks,
+  List,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Target,
+  Trash2,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { GoalDialog } from "@/components/goals/goal-dialog";
@@ -15,25 +26,39 @@ import {
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
-import { StatCard } from "@/components/shared/stat-card";
+import { ProgressRing } from "@/components/shared/progress-ring";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useFocusData } from "@/hooks/use-focus-data";
 import { healthFromRatio } from "@/lib/health";
-import { itemsForGoal } from "@/lib/selectors";
+import { itemsForGoal, planForDate } from "@/lib/selectors";
 import { useFocusStore } from "@/lib/store/focus-store";
 import type { GoalStatus } from "@/lib/types";
-import { formatHours, formatRelativeDay, percent, toDateKey } from "@/lib/utils";
+import {
+  formatHours,
+  formatRelativeDay,
+  percent,
+  toDateKey,
+} from "@/lib/utils";
 
 type Filter = GoalStatus | "all";
+type ViewMode = "grid" | "list";
 
 /** Goal catalogue with progress against target hours. */
 export default function GoalsPage() {
   const { state, actions } = useFocusStore();
-  const { goals } = useFocusData({ tickMs: 60_000 });
+  const { goals, todayKey } = useFocusData({ tickMs: 60_000 });
   const [filter, setFilter] = useState<Filter>("all");
+  const [view, setView] = useState<ViewMode>("grid");
 
   const progressById = useMemo(
     () => new Map(goals.map((goal) => [goal.goalId, goal])),
@@ -44,45 +69,37 @@ export default function GoalsPage() {
     (goal) => filter === "all" || goal.status === filter,
   );
 
-  const totals = {
-    target: state.goals.reduce((sum, goal) => sum + goal.targetHours, 0),
-    logged: goals.reduce((sum, goal) => sum + goal.loggedHours, 0),
-    active: state.goals.filter((goal) => goal.status === "active").length,
-    completed: state.goals.filter((goal) => goal.status === "completed").length,
-  };
-
   return (
     <div className="space-y-6">
       <PageHeader
         title="Goals"
-        description="Long-term objectives measured in hours. Progress comes from the sessions logged against their focus items."
+        description="Turn meaningful goals into daily commitments, then track planned time against focused sessions."
         actions={
-          <GoalDialog
-            categories={state.categories}
-            trigger={
-              <Button size="sm" disabled={state.categories.length === 0}>
-                <Plus className="size-3.5" />
-                New goal
+          <div className="flex items-center gap-2">
+            <div className="flex items-center rounded-lg border border-border/70 p-0.5">
+              <Button size="icon-sm" variant={view === "grid" ? "secondary" : "ghost"} onClick={() => setView("grid")} aria-label="Grid view" aria-pressed={view === "grid"}>
+                <LayoutGrid className="size-3.5" />
               </Button>
-            }
-            onSave={(goal) => {
-              actions.saveGoal(goal);
-              toast.success(`Created ${goal.title}`);
-            }}
-          />
+              <Button size="icon-sm" variant={view === "list" ? "secondary" : "ghost"} onClick={() => setView("list")} aria-label="List view" aria-pressed={view === "list"}>
+                <List className="size-3.5" />
+              </Button>
+            </div>
+            <GoalDialog
+              categories={state.categories}
+              trigger={
+                <Button size="sm" disabled={state.categories.length === 0}>
+                  <Plus className="size-3.5" />
+                  New goal
+                </Button>
+              }
+              onSave={(goal) => {
+                actions.saveGoal(goal);
+                toast.success(`Created ${goal.title}`);
+              }}
+            />
+          </div>
         }
       />
-
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Active goals" value={totals.active} icon={Target} />
-        <StatCard label="Completed" value={totals.completed} />
-        <StatCard label="Hours logged" value={formatHours(totals.logged)} />
-        <StatCard
-          label="Total committed"
-          value={formatHours(totals.target)}
-          hint={`${percent(totals.target > 0 ? totals.logged / totals.target : 0)} of everything you have signed up for`}
-        />
-      </section>
 
       <Tabs
         value={filter}
@@ -104,13 +121,13 @@ export default function GoalsPage() {
           }
           description={
             state.goals.length === 0
-              ? "Create a category first, then give it a goal with a target number of hours."
+              ? "Create a category first, then turn a meaningful goal into a daily commitment."
               : "Try a different status filter."
           }
           className="py-16"
         />
       ) : (
-        <div className="space-y-3">
+        <div className={view === "grid" ? "grid gap-4 md:grid-cols-2" : "space-y-3"}>
           {visible.map((goal) => {
             const progress = progressById.get(goal.id);
             const items = itemsForGoal(state, goal.id);
@@ -118,10 +135,27 @@ export default function GoalsPage() {
             const category = state.categories.find(
               (entry) => entry.id === goal.categoryId,
             );
+            const todayPlan = planForDate(state, todayKey);
+            const todayWorkItem = todayPlan?.allocations.find((allocation) =>
+              items.some((item) => item.id === allocation.focusItemId),
+            );
+            const focusItem =
+              items.find((item) => item.id === todayWorkItem?.focusItemId) ??
+              items[0];
 
             return (
-              <Card key={goal.id} className="group">
-                <CardContent className="space-y-4 p-5">
+              <Card
+                key={goal.id}
+                className="group relative h-full overflow-hidden border-border/80 bg-card shadow-xs transition-[border-color,box-shadow] hover:border-primary/20 hover:shadow-sm"
+              >
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 bottom-0 h-24"
+                  style={{
+                    background: `linear-gradient(to top, color-mix(in oklab, ${health.cssVar} 11%, transparent), transparent)`,
+                  }}
+                />
+                <CardContent className="relative z-10 space-y-4 p-5">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0 space-y-1.5">
                       <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
@@ -143,9 +177,12 @@ export default function GoalsPage() {
                           </>
                         ) : null}
                       </p>
-                      <h2 className="text-base font-semibold tracking-tight">
+                      <Link
+                        href={`/goals/${goal.id}`}
+                        className="block text-base font-semibold tracking-tight hover:text-primary"
+                      >
                         {goal.title}
-                      </h2>
+                      </Link>
                       {goal.description ? (
                         <p className="max-w-2xl text-xs leading-relaxed text-muted-foreground">
                           {goal.description}
@@ -157,78 +194,117 @@ export default function GoalsPage() {
                       <PriorityBadge priority={goal.priority} />
                       <GoalStatusBadge status={goal.status} />
                       <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-                        <ItemDialog
-                          goals={state.goals}
-                          defaultGoalId={goal.id}
-                          trigger={
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
                             <Button
                               size="icon-sm"
                               variant="ghost"
-                              aria-label={`Add focus item to ${goal.title}`}
+                              aria-label={`More actions for ${goal.title}`}
                             >
-                              <ListChecks className="size-3.5" />
+                              <MoreHorizontal className="size-4" />
                             </Button>
-                          }
-                          onSave={(item) => {
-                            actions.saveItem(item);
-                            toast.success(`Added ${item.name}`);
-                          }}
-                        />
-                        <GoalDialog
-                          goal={goal}
-                          categories={state.categories}
-                          trigger={
-                            <Button
-                              size="icon-sm"
-                              variant="ghost"
-                              aria-label={`Edit ${goal.title}`}
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-48">
+                            <DropdownMenuItem asChild>
+                              <Link href={`/goals/${goal.id}`}>
+                                <Eye /> View goal
+                              </Link>
+                            </DropdownMenuItem>
+                            {todayWorkItem ? (
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href={`/dashboard?goal=${encodeURIComponent(goal.id)}&focus=${encodeURIComponent(focusItem?.id ?? "")}`}
+                                >
+                                  <CalendarDays /> Open in Today
+                                </Link>
+                              </DropdownMenuItem>
+                            ) : null}
+                            <DropdownMenuSeparator />
+                            <ItemDialog
+                              goals={state.goals}
+                              defaultGoalId={goal.id}
+                              trigger={
+                                <DropdownMenuItem>
+                                  <ListChecks /> Add work item
+                                </DropdownMenuItem>
+                              }
+                              onSave={(item) => {
+                                actions.saveItem(item);
+                                toast.success(`Added ${item.name}`);
+                              }}
+                            />
+                            <GoalDialog
+                              goal={goal}
+                              categories={state.categories}
+                              trigger={
+                                <DropdownMenuItem>
+                                  <Pencil /> Edit goal
+                                </DropdownMenuItem>
+                              }
+                              onSave={(updated) => {
+                                actions.saveGoal(updated);
+                                toast.success("Goal updated");
+                              }}
+                            />
+                            <DropdownMenuSeparator />
+                            <ConfirmDialog
+                              title={`Delete ${goal.title}?`}
+                              description={`Its ${items.length} work item${items.length === 1 ? "" : "s"} will be deleted too.`}
+                              onConfirm={() => {
+                                actions.removeGoal(goal.id);
+                                toast.success("Goal deleted");
+                              }}
                             >
-                              <Pencil className="size-3.5" />
-                            </Button>
-                          }
-                          onSave={(updated) => {
-                            actions.saveGoal(updated);
-                            toast.success("Goal updated");
-                          }}
-                        />
-                        <ConfirmDialog
-                          title={`Delete ${goal.title}?`}
-                          description={`Its ${items.length} focus item${items.length === 1 ? "" : "s"} will be deleted too.`}
-                          onConfirm={() => {
-                            actions.removeGoal(goal.id);
-                            toast.success("Goal deleted");
-                          }}
-                        >
-                          <Button
-                            size="icon-sm"
-                            variant="ghost"
-                            className="text-destructive hover:bg-destructive/10"
-                            aria-label={`Delete ${goal.title}`}
-                          >
-                            <Trash2 className="size-3.5" />
-                          </Button>
-                        </ConfirmDialog>
+                              <DropdownMenuItem variant="destructive">
+                                <Trash2 /> Delete goal
+                              </DropdownMenuItem>
+                            </ConfirmDialog>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Progress
-                      value={(progress?.progress ?? 0) * 100}
-                      className="h-2"
-                      indicatorClassName={health.fill}
-                    />
-                    <div className="flex flex-wrap items-baseline justify-between gap-2 text-[11px]">
-                      <span className="tabular text-muted-foreground">
-                        {formatHours(progress?.loggedHours ?? 0)} of{" "}
-                        {formatHours(goal.targetHours)} ·{" "}
-                        {items.length} focus item{items.length === 1 ? "" : "s"}
-                      </span>
-                      <span className={`tabular font-medium ${health.text}`}>
-                        {percent(progress?.progress ?? 0)}
-                      </span>
+                  {state.settings.goalProgressDisplay === "bar" ? (
+                    <div className="space-y-1.5">
+                      <Progress
+                        value={(progress?.progress ?? 0) * 100}
+                        className="h-2"
+                        indicatorClassName={health.fill}
+                      />
+                      <div className="flex flex-wrap items-baseline justify-between gap-2 text-[11px]">
+                        <span className="tabular text-muted-foreground">
+                          {formatHours(progress?.loggedHours ?? 0)} of {formatHours(goal.targetHours)} · {items.length} work item{items.length === 1 ? "" : "s"}
+                        </span>
+                        <span className={`tabular font-medium ${health.text}`}>
+                          {percent(progress?.progress ?? 0)}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="flex items-center gap-4">
+                      <ProgressRing
+                        value={progress?.progress ?? 0}
+                        size={72}
+                        strokeWidth={8}
+                        color={health.cssVar}
+                        className="shrink-0"
+                      >
+                        <span className={`tabular text-sm font-semibold ${health.text}`}>
+                          {percent(progress?.progress ?? 0)}
+                        </span>
+                      </ProgressRing>
+                      <div className="min-w-0 space-y-1">
+                        <p className="text-xs font-medium text-foreground">Goal progress</p>
+                        <p className="tabular text-xs text-muted-foreground">
+                          {formatHours(progress?.loggedHours ?? 0)} of {formatHours(goal.targetHours)}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground">
+                          {items.length} work item{items.length === 1 ? "" : "s"}
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   {items.length > 0 ? (
                     <ul className="flex flex-wrap gap-1.5">

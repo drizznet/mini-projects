@@ -97,3 +97,12 @@ export function sessionsForItem(
 ): FocusSession[] {
   return state.sessions.filter((session) => session.focusItemId === itemId);
 }
+
+export function dailySessionsForDate(
+  state: FocusState,
+  dateKey: string,
+) {
+  return state.dailySessions
+    .filter((session) => session.date === dateKey)
+    .sort((a, b) => a.goalId.localeCompare(b.goalId));
+}

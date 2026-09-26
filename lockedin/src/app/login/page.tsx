@@ -1,40 +1,57 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
+import { ArrowLeft, Check, Sparkles } from "lucide-react";
 
 import { LoginForm } from "./login-form";
-import { BRAND } from "@/lib/brand";
+import { BrandLockup } from "@/components/brand/logo";
+import focusBackground from "../../../public/assets/focus.jpg";
 
 export const metadata: Metadata = { title: "Log in" };
 
 function FocusIllustration() {
   return (
-    <div className="relative h-[min(30rem,58vw)] w-[min(30rem,58vw)] max-w-full text-primary">
-      <div className="absolute inset-[12%] rounded-full border border-primary/20" />
-      <div className="absolute inset-[22%] rounded-full border border-primary/30" />
-      <div className="absolute left-1/2 top-1/2 size-[34%] -translate-x-1/2 -translate-y-1/2 rotate-12 rounded-[38%] border-2 border-primary bg-primary/15 shadow-[0_0_80px_color-mix(in_oklab,var(--primary)_28%,transparent)]" />
-      <div className="absolute left-[17%] top-[35%] h-px w-[66%] origin-center rotate-[24deg] bg-primary/70" />
-      <div className="absolute left-[30%] top-[54%] h-px w-[55%] origin-center -rotate-[35deg] bg-primary/45" />
-      <span className="absolute left-[16%] top-[33%] size-3 rounded-full bg-primary shadow-[0_0_18px_var(--primary)]" />
-      <span className="absolute right-[17%] top-[25%] size-2 rounded-full bg-primary/80" />
-      <span className="absolute bottom-[23%] right-[23%] size-4 rounded-full border border-primary bg-background" />
-    </div>
+    <figure className="relative mx-auto mt-10 w-full max-w-sm pb-5">
+      <div aria-hidden="true" className="absolute inset-x-3 top-4 bottom-1 rotate-3 rounded-3xl border border-white/20 bg-white/10" />
+      <div className="relative rounded-3xl border border-white/70 bg-background p-6 text-foreground shadow-[0_24px_60px_-15px_#16051d80] xl:p-7">
+        <div className="flex items-center justify-between gap-3"><span className="text-[10px] font-semibold uppercase tracking-[.16em] text-muted-foreground">One thing at a time</span><Sparkles className="size-4 text-chart-1" aria-hidden="true" /></div>
+        <p className="mt-5 text-xl font-semibold tracking-tight">Make room for your best work.</p>
+        <div className="mt-6 flex items-end justify-between gap-3 border-b border-border pb-5"><div><p className="text-[10px] text-muted-foreground">A little time, just for this.</p><p className="mt-2 font-mono text-5xl tracking-[-.06em]">25<span className="text-chart-1">:00</span></p></div><span className="mb-1 rounded-full border border-primary/10 bg-secondary px-3 py-1.5 text-[10px] font-medium">Focus block</span></div>
+        <div className="mt-5 flex gap-1.5" aria-hidden="true">{Array.from({ length: 20 }, (_, index) => <span key={index} className={`h-5 flex-1 rounded-sm ${index < 12 ? "bg-primary" : "bg-accent"}`} />)}</div>
+        <div className="mt-3 flex justify-between text-[10px] text-muted-foreground"><span>Settle in</span><span>Find your flow</span></div>
+        <p className="mt-6 flex items-center gap-2 text-xs"><span className="grid size-5 place-items-center rounded-full bg-secondary"><Check className="size-3" aria-hidden="true" /></span>A clear intention. A fresh start.</p>
+      </div>
+      <figcaption className="relative mt-6 text-center text-[10px] tracking-wider text-primary-foreground/65">A glimpse of your focus space</figcaption>
+    </figure>
   );
 }
 
 export default function LoginPage() {
   return (
-    <main className="grid min-h-svh bg-background lg:grid-cols-2">
-      <section className="surface-ink relative hidden min-h-svh overflow-hidden p-10 text-foreground lg:flex lg:flex-col lg:justify-between">
-        <div className="aurora absolute inset-0" />
-        <Link href="/" className="relative z-10 text-sm font-semibold tracking-[0.3em] uppercase">{BRAND.name}</Link>
-        <div className="relative z-10 flex flex-col items-center justify-center">
+    <main className="grid min-h-svh bg-background lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:p-4 xl:p-6">
+      <section aria-labelledby="login-focus-heading" className="relative hidden overflow-hidden rounded-[2rem] bg-primary p-8 text-primary-foreground lg:flex lg:flex-col lg:justify-between xl:p-12">
+        <Image
+          src={focusBackground}
+          alt=""
+          fill
+          loading="lazy"
+          placeholder="blur"
+          sizes="(min-width: 1024px) 50vw, 1px"
+          className="pointer-events-none object-cover object-center"
+        />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/55 via-black/40 to-black/60" />
+        <Link href="/" className="relative flex w-fit items-center gap-2 rounded-md text-xs text-primary-foreground/80 transition-colors hover:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"><ArrowLeft className="size-3.5" />Back to lockIn</Link>
+        <div className="relative mx-auto w-full max-w-md py-10">
+          <p className="text-[10px] font-semibold uppercase tracking-[.22em] text-primary-foreground/65">A little less noise</p>
+          <h2 id="login-focus-heading" className="mt-4 text-4xl leading-[1.08] font-semibold tracking-[-.04em] xl:text-5xl">Your time.<br /><span className="text-accent">Your kind of progress.</span></h2>
+          <p className="mt-5 max-w-xs text-sm leading-relaxed text-primary-foreground/75">A quieter place to gather your thoughts and give the work that matters your attention.</p>
           <FocusIllustration />
-          <p className="mt-3 text-center text-sm tracking-[0.22em] text-muted-foreground uppercase">{BRAND.tagline}</p>
         </div>
-        <p className="relative z-10 max-w-xs text-sm leading-relaxed text-muted-foreground">A quieter place to plan your attention and protect the work that matters.</p>
+        <p className="relative flex items-center gap-3 text-[10px] text-primary-foreground/65"><span className="h-px w-7 bg-white/30" />Less switching. More finishing.</p>
       </section>
-      <section className="flex min-h-svh items-center justify-center px-6 py-12 sm:px-10">
-        <LoginForm />
+      <section aria-label="Account access" className="flex min-h-svh flex-col px-6 py-12 sm:px-10 lg:min-h-0 lg:px-12 lg:py-8">
+        <div className="hidden lg:block"><BrandLockup href="/" showSubtitle={false} /></div>
+        <div className="flex w-full flex-1 items-center justify-center lg:py-12"><LoginForm /></div>
       </section>
     </main>
   );

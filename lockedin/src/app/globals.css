@@ -6,41 +6,41 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Single shadcn/ui default Neutral light theme. */
+/* One shared cream-and-purple light palette, taken from the landing hero. */
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --background: #faf9f5;
+  --foreground: #4b1058;
+  --card: #ffffff;
+  --card-foreground: #4b1058;
+  --popover: #ffffff;
+  --popover-foreground: #4b1058;
+  --primary: #410d4b;
+  --primary-foreground: #ffffff;
+  --secondary: #f0e6f3;
+  --secondary-foreground: #4b1058;
+  --muted: #f5edf7;
+  --muted-foreground: #625b65;
+  --accent: #eedcf3;
+  --accent-foreground: #410d4b;
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: #ffffff;
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --border: #ebe5ec;
+  --input: #c9b7ce;
+  --ring: #a032b4;
+  --chart-1: #a032b4;
+  --chart-2: #7354b6;
+  --chart-3: #477d85;
+  --chart-4: #d989e6;
+  --chart-5: #b98029;
+  --sidebar: #f7f2f7;
+  --sidebar-foreground: #4b1058;
+  --sidebar-primary: #410d4b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eedcf3;
+  --sidebar-accent-foreground: #410d4b;
+  --sidebar-border: #ebe5ec;
+  --sidebar-ring: #a032b4;
 
   /* Compatibility aliases for existing product components. */
   --card-elevated: var(--muted);
@@ -49,17 +49,60 @@
   --ink-panel: var(--card);
   --aqua: var(--primary);
   --ink-glow: var(--muted);
-  --chart-6: oklch(0.556 0 0);
+  --chart-6: #625b65;
   --health-excellent: #15803d;
   --health-on-track: #1d4ed8;
   --health-slipping: #854d0e;
   --health-behind: #c2410c;
   --health-critical: #b91c1c;
-  --grid-line: oklch(0.145 0 0 / 6%);
+  --grid-line: #410d4b0f;
   --motion-fast: 150ms;
   --motion-ui: 250ms;
   --motion-reveal: 650ms;
   --ease-out: cubic-bezier(.2, .7, .2, 1);
+}
+
+.dark {
+  --background: #17121a;
+  --foreground: #f3e8f7;
+  --card: #211925;
+  --card-foreground: #f3e8f7;
+  --popover: #251c2a;
+  --popover-foreground: #f3e8f7;
+  --primary: #d58be5;
+  --primary-foreground: #27102e;
+  --secondary: #34273a;
+  --secondary-foreground: #f3e8f7;
+  --muted: #2a202f;
+  --muted-foreground: #b7a8bc;
+  --accent: #43294b;
+  --accent-foreground: #f3e8f7;
+  --destructive: #f87171;
+  --destructive-foreground: #2a0d12;
+  --border: #49394e;
+  --input: #5e4a65;
+  --ring: #d58be5;
+  --chart-1: #d58be5;
+  --chart-2: #a894e8;
+  --chart-3: #72b4bc;
+  --chart-4: #e6a1ef;
+  --chart-5: #e0ae5d;
+  --sidebar: #1c1620;
+  --sidebar-foreground: #f3e8f7;
+  --sidebar-primary: #d58be5;
+  --sidebar-primary-foreground: #27102e;
+  --sidebar-accent: #34273a;
+  --sidebar-accent-foreground: #f3e8f7;
+  --sidebar-border: #3d3042;
+  --sidebar-ring: #d58be5;
+  --card-elevated: #2a202f;
+  --surface-tint: #2a202f;
+  --ink: var(--background);
+  --ink-panel: var(--card);
+  --aqua: var(--primary);
+  --ink-glow: var(--muted);
+  --chart-6: #b7a8bc;
+  --grid-line: #d58be51a;
 }
 
 @theme inline {
@@ -121,6 +164,7 @@
   --radius-3xl: calc(var(--radius) * 2.2);
 
   --animate-shimmer: shimmer 2.4s linear infinite;
+  --animate-active-session-card: active-session-card 5s ease-in-out infinite;
   --animate-pulse-ring: pulse-ring 2.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -132,6 +176,16 @@
   }
   to {
     background-position: -200% 0;
+  }
+}
+
+@keyframes active-session-card {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
   }
 }
 
@@ -180,6 +234,10 @@
     color-scheme: light;
   }
 
+  html.dark {
+    color-scheme: dark;
+  }
+
   /* Reserve the scrollbar so opening a dialog does not shift the layout. */
   html {
     scrollbar-gutter: stable;
@@ -197,7 +255,7 @@
   text-wrap: balance;
 }
 
-/* Neutral atmosphere for existing feature layouts. */
+/* Soft purple atmosphere for existing feature layouts. */
 @utility aurora {
   background:
     radial-gradient(
@@ -218,7 +276,72 @@
 }
 
 /* Marketing treatments built on the shared semantic palette. */
-.landing-shell section[id] { scroll-margin-top: 5rem; }
+.landing-floating-nav {
+  animation: landing-nav-enter 220ms var(--ease-out);
+}
+@keyframes landing-nav-enter {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.attention-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.055;
+  background-image:
+    linear-gradient(to right, var(--primary) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--primary) 1px, transparent 1px);
+  background-repeat: repeat;
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, black 65%, transparent);
+}
+.attention-headline { color: var(--chart-1); }
+.attention-desk::before {
+  content: "";
+  position: absolute;
+  inset: -8% -10%;
+  pointer-events: none;
+  background: radial-gradient(ellipse, color-mix(in srgb, var(--accent) 65%, transparent), transparent 68%);
+}
+.attention-stack-card {
+  transform-origin: 50% 75%;
+  transform: var(--stack-position);
+  box-shadow: 0 8px 24px -10px #410d4b35;
+  animation: attention-stack-deal 850ms var(--ease-out) both;
+}
+.attention-stack-back {
+  --stack-position: translate(7px, 18px) rotate(4deg);
+  animation-delay: 100ms;
+}
+.attention-stack-middle {
+  --stack-position: translate(-5px, 9px) rotate(-2.5deg);
+  animation-delay: 220ms;
+}
+.attention-stack-front {
+  animation: attention-stack-front 750ms var(--ease-out) 340ms both;
+}
+@keyframes attention-stack-deal {
+  from { opacity: 0; transform: translate(0, 40px) rotate(0deg); }
+  to { opacity: 1; transform: var(--stack-position); }
+}
+@keyframes attention-stack-front {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.attention-preview-card {
+  box-shadow: 0 4px 10px -4px #410d4b12, 0 20px 45px -18px #410d4b38;
+}
+.workspace-showcase {
+  background: radial-gradient(ellipse at 85% 15%, #ffffffb3, transparent 55%), var(--secondary);
+}
+.workspace-preview {
+  box-shadow: 0 8px 20px -10px #410d4b20, 0 40px 80px -35px #410d4b40;
+}
+.attention-signal.is-running > span { animation: attention-signal 1.2s ease-in-out infinite alternate; }
+@keyframes attention-signal { to { transform: scaleY(.4); opacity: .5; } }
+.landing-shell section[id] { scroll-margin-top: 7rem; }
 .landing-shell .landing-hero {
   background: radial-gradient(ellipse at 50% 25%, color-mix(in oklab, var(--primary) 12%, var(--background)), var(--background) 70%);
 }

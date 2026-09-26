@@ -1,9 +1,8 @@
 import {
   BarChart3,
-  CalendarRange,
   FolderTree,
   LayoutDashboard,
-  ListChecks,
+  ListTodo,
   Settings,
   Target,
   Timer,
@@ -34,15 +33,15 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       {
         href: "/dashboard",
-        label: "Dashboard",
+        label: "Today",
         icon: LayoutDashboard,
-        description: "Today's plan and what to do next",
+        description: "Today’s focus commitments",
       },
       {
-        href: "/plan",
-        label: "Daily Plan",
-        icon: CalendarRange,
-        description: "Allocate today's focus budget",
+        href: "/work-items",
+        label: "Work items",
+        icon: ListTodo,
+        description: "Plan concrete work across days",
       },
       {
         href: "/sessions",
@@ -66,12 +65,6 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "Goals",
         icon: Target,
         description: "Long-term objectives and progress",
-      },
-      {
-        href: "/focus-items",
-        label: "Focus Items",
-        icon: ListChecks,
-        description: "The work you actually sit down to do",
       },
     ],
   },

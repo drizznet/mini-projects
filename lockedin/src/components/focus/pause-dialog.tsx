@@ -54,11 +54,12 @@ export function PauseDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Pause className="size-4 text-health-slipping" />
-            Why are you pausing?
+            Why are you taking a break?
           </DialogTitle>
           <DialogDescription>
-            Planned breaks do not count against your focus score. Everything else
-            is tracked as an interruption so you can see the pattern later.
+            Your break duration is tracked separately from focus time. Planned
+            breaks do not count against your focus score; other breaks are
+            recorded as interruptions so you can see the pattern later.
           </DialogDescription>
         </DialogHeader>
 
@@ -94,7 +95,7 @@ export function PauseDialog({
             Keep going
           </Button>
           <Button onClick={confirm} disabled={!reasonId}>
-            Pause session
+            Start break
           </Button>
         </DialogFooter>
       </DialogContent>

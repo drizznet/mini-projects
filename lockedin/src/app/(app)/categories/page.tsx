@@ -7,9 +7,9 @@ import { CategoryDialog } from "@/components/categories/category-dialog";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
+import { ProgressDisplay } from "@/components/shared/progress-display";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { useFocusData } from "@/hooks/use-focus-data";
 import { resolveCategoryIcon } from "@/lib/icons";
 import { goalsForCategory } from "@/lib/selectors";
@@ -146,12 +146,10 @@ export default function CategoriesPage() {
                         {percent(slice?.share ?? 0)}
                       </span>
                     </div>
-                    <Progress
-                      value={(slice?.share ?? 0) * 100}
+                    <ProgressDisplay
+                      value={slice?.share ?? 0}
                       className="h-1.5"
-                      indicatorStyle={{
-                        backgroundColor: `var(--${category.color})`,
-                      }}
+                      color={`var(--${category.color})`}
                     />
                     <div className="flex items-baseline justify-between text-[11px] text-muted-foreground">
                       <span className="tabular">

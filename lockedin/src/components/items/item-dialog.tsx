@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -28,10 +29,10 @@ import {
   PRIORITIES,
 } from "@/lib/constants";
 import { PRIORITY_META } from "@/lib/health";
-import type { FocusItem, FocusItemStatus, Goal, Priority } from "@/lib/types";
+import type { FocusItem, FocusItemStatus, Goal, Priority, WorkFocusMode } from "@/lib/types";
 import { createId } from "@/lib/utils";
 
-/** Create/edit form for focus items — the units of work sessions attach to. */
+/** Create/edit form for work items — the atomic units that sessions attach to. */
 export function ItemDialog({
   trigger,
   item,
@@ -52,6 +53,7 @@ export function ItemDialog({
   const [priority, setPriority] = useState<Priority>("medium");
   const [status, setStatus] = useState<FocusItemStatus>("not_started");
   const [dailyHours, setDailyHours] = useState("1");
+  const [focusMode, setFocusMode] = useState<WorkFocusMode>("flexible");
 
   useEffect(() => {
     if (!open) return;
@@ -61,6 +63,13 @@ export function ItemDialog({
     setPriority(item?.priority ?? "medium");
     setStatus(item?.status ?? "not_started");
     setDailyHours(`${item?.estimatedDailyHours ?? 1}`);
+    const selectedGoalId = item?.goalId ?? defaultGoalId ?? goals[0]?.id;
+    setFocusMode(
+      item?.focusMode ??
+        goals.find((goal) => goal.id === selectedGoalId)
+          ?.workFocusMode ??
+        "flexible",
+    );
   }, [open, item, defaultGoalId, goals]);
 
   const parsedHours = Number(dailyHours);
@@ -80,6 +89,7 @@ export function ItemDialog({
       priority,
       status,
       estimatedDailyHours: parsedHours,
+      focusMode,
       createdAt: item?.createdAt ?? new Date().toISOString(),
       archivedAt: item?.archivedAt ?? null,
     });
@@ -91,7 +101,7 @@ export function ItemDialog({
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{item ? "Edit focus item" : "New focus item"}</DialogTitle>
+          <DialogTitle>{item ? "Edit work item" : "New work item"}</DialogTitle>
           <DialogDescription>
             Keep these concrete enough to sit down and start. &ldquo;Dependency
             injection module&rdquo; beats &ldquo;learn backend&rdquo;.
@@ -188,6 +198,40 @@ export function ItemDialog({
               </Select>
             </div>
           </div>
+
+          <div className="space-y-2">
+            <Label>Focus pattern</Label>
+            <RadioGroup
+              value={focusMode}
+              onValueChange={(value) => setFocusMode(value as WorkFocusMode)}
+              className="grid gap-2 sm:grid-cols-2"
+            >
+              <Label
+                htmlFor="item-focus-flexible"
+                className={`cursor-pointer rounded-xl border px-3 py-2.5 ${focusMode === "flexible" ? "border-primary bg-primary/5" : "border-border/70"}`}
+              >
+                <span className="flex items-start gap-2">
+                  <RadioGroupItem id="item-focus-flexible" value="flexible" className="mt-0.5" />
+                  <span>
+                    <span className="block text-xs font-medium">Flexible blocks</span>
+                    <span className="block text-[11px] text-muted-foreground">Switch sessions while this is paused.</span>
+                  </span>
+                </span>
+              </Label>
+              <Label
+                htmlFor="item-focus-continuous"
+                className={`cursor-pointer rounded-xl border px-3 py-2.5 ${focusMode === "continuous" ? "border-primary bg-primary/5" : "border-border/70"}`}
+              >
+                <span className="flex items-start gap-2">
+                  <RadioGroupItem id="item-focus-continuous" value="continuous" className="mt-0.5" />
+                  <span>
+                    <span className="block text-xs font-medium">One continuous block</span>
+                    <span className="block text-[11px] text-muted-foreground">Finish or resume this before switching.</span>
+                  </span>
+                </span>
+              </Label>
+            </RadioGroup>
+          </div>
         </div>
 
         <DialogFooter>
@@ -195,7 +239,7 @@ export function ItemDialog({
             Cancel
           </Button>
           <Button onClick={submit} disabled={!valid}>
-            {item ? "Save changes" : "Create focus item"}
+            {item ? "Save changes" : "Create work item"}
           </Button>
         </DialogFooter>
       </DialogContent>
