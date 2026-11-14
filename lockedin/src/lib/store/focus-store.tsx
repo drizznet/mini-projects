@@ -32,10 +32,10 @@ import type {
 import { createId, dateKeyRange, fromDateKey, toDateKey } from "../utils";
 
 /**
- * Client-side source of truth.
+ * Client-side source of truth for planning and session state.
  *
- * A reducer holds the graph and a localStorage repository persists it. The MVP
- * is fully offline and keeps the frontend preview self-contained.
+ * A reducer holds the graph and a localStorage repository persists it. Categories
+ * and commitments are synchronized from the authenticated API.
  *
  * Hydration happens in an effect (never during render) because the seed data is
  * keyed to the viewer's local calendar days, which the server cannot know.
@@ -45,9 +45,11 @@ type Action =
   | { type: "hydrate"; state: FocusState }
   | { type: "reset"; state: FocusState }
   | { type: "settings/update"; patch: Partial<Settings> }
+  | { type: "category/replace"; categories: Category[] }
   | { type: "category/upsert"; category: Category }
   | { type: "category/remove"; id: string }
   | { type: "goal/upsert"; goal: Goal }
+  | { type: "goal/replace"; goals: Goal[] }
   | { type: "goal/remove"; id: string }
   | { type: "item/upsert"; item: FocusItem }
   | { type: "item/remove"; id: string }
@@ -111,6 +113,21 @@ function dailySessionsForGoal(goal: Goal): DailySession[] {
   );
 }
 
+function focusItemForGoal(goal: Goal, id: string): FocusItem {
+  return {
+    id,
+    goalId: goal.id,
+    name: goal.title,
+    notes: "",
+    priority: goal.priority,
+    estimatedDailyHours: (goal.dailyCommitmentMinutes ?? 60) / 60,
+    status: "not_started",
+    focusMode: goal.workFocusMode ?? "flexible",
+    createdAt: goal.createdAt,
+    archivedAt: null,
+  };
+}
+
 function allocateGoalAcrossPlan(
   plans: DailyPlan[],
   goal: Goal,
@@ -146,14 +163,31 @@ function allocateGoalAcrossPlan(
   );
 }
 
+/** The live session is the one `activeSessionId` points at. If that pointer is empty or stale, attach it to a session that is still running, then the newest paused one. */
+function reconcileActiveSession(state: FocusState): FocusState {
+  const live = state.sessions.filter(
+    (session) => session.status === "running" || session.status === "paused",
+  );
+  if (live.some((session) => session.id === state.activeSessionId)) return state;
+  const next = [...live].sort((a, b) => {
+    if (a.status !== b.status) return a.status === "running" ? -1 : 1;
+    return b.startedAt.localeCompare(a.startedAt);
+  })[0];
+  const activeSessionId = next?.id ?? null;
+  return activeSessionId === state.activeSessionId ? state : { ...state, activeSessionId };
+}
+
 function focusReducer(state: FocusState, action: Action): FocusState {
   switch (action.type) {
     case "hydrate":
     case "reset":
-      return action.state;
+      return reconcileActiveSession(action.state);
 
     case "settings/update":
       return { ...state, settings: { ...state.settings, ...action.patch } };
+
+    case "category/replace":
+      return { ...state, categories: action.categories };
 
     case "category/upsert": {
       const exists = state.categories.some((c) => c.id === action.category.id);
@@ -168,19 +202,11 @@ function focusReducer(state: FocusState, action: Action): FocusState {
     }
 
     case "category/remove": {
-      // Cascade: dropping a category detaches its goals and their focus items.
-      const goalIds = state.goals
-        .filter((goal) => goal.categoryId === action.id)
-        .map((goal) => goal.id);
       return {
         ...state,
         categories: state.categories.filter((c) => c.id !== action.id),
-        goals: state.goals.filter((goal) => !goalIds.includes(goal.id)),
-        focusItems: state.focusItems.filter(
-          (item) => !goalIds.includes(item.goalId),
-        ),
-        dailySessions: state.dailySessions.filter(
-          (session) => !goalIds.includes(session.goalId),
+        goals: state.goals.map((goal) =>
+          goal.categoryId === action.id ? { ...goal, categoryId: "" } : goal,
         ),
       };
     }
@@ -188,18 +214,7 @@ function focusReducer(state: FocusState, action: Action): FocusState {
     case "goal/upsert": {
       const exists = state.goals.some((goal) => goal.id === action.goal.id);
       const focusItemId = createId("item");
-      const newFocusItem = {
-        id: focusItemId,
-        goalId: action.goal.id,
-        name: action.goal.title,
-        notes: "",
-        priority: action.goal.priority,
-        estimatedDailyHours: (action.goal.dailyCommitmentMinutes ?? 60) / 60,
-        status: "not_started" as const,
-        focusMode: action.goal.workFocusMode ?? "flexible",
-        createdAt: new Date().toISOString(),
-        archivedAt: null,
-      };
+      const newFocusItem = focusItemForGoal(action.goal, focusItemId);
       return {
         ...state,
         goals: exists
@@ -216,6 +231,37 @@ function focusReducer(state: FocusState, action: Action): FocusState {
         focusItems: exists
           ? state.focusItems
           : [...state.focusItems, newFocusItem],
+      };
+    }
+
+    case "goal/replace": {
+      const goals = action.goals;
+      const goalIds = new Set(goals.map((goal) => goal.id));
+      const kept = state.focusItems.filter(
+        (item) => goalIds.has(item.goalId) && !item.archivedAt,
+      );
+      const covered = new Set(kept.map((item) => item.goalId));
+      const created = goals
+        .filter((goal) => !covered.has(goal.id))
+        .map((goal) => focusItemForGoal(goal, `item_${goal.id}`));
+      const focusItems = [...kept, ...created];
+      const focusItemIds = new Set(focusItems.map((item) => item.id));
+      const plans = goals.reduce((nextPlans, goal) => {
+        if (goal.status !== "active") return nextPlans;
+        const item = focusItems.find((entry) => entry.goalId === goal.id);
+        return item ? allocateGoalAcrossPlan(nextPlans, goal, item.id) : nextPlans;
+      }, state.plans.map((plan) => ({
+        ...plan,
+        allocations: plan.allocations.filter((allocation) =>
+          focusItemIds.has(allocation.focusItemId),
+        ),
+      })));
+      return {
+        ...state,
+        goals,
+        focusItems,
+        dailySessions: goals.flatMap(dailySessionsForGoal),
+        plans,
       };
     }
 
@@ -312,6 +358,11 @@ function focusReducer(state: FocusState, action: Action): FocusState {
         ...state,
         sessions: [...state.sessions, action.session],
         activeSessionId: action.session.id,
+        focusItems: state.focusItems.map((item) =>
+          item.id === action.session.focusItemId
+            ? { ...item, status: "in_progress" }
+            : item,
+        ),
       };
 
     case "session/pause":
@@ -373,7 +424,7 @@ function focusReducer(state: FocusState, action: Action): FocusState {
       };
 
     case "session/end":
-      return {
+      return reconcileActiveSession({
         ...state,
         activeSessionId:
           state.activeSessionId === action.id ? null : state.activeSessionId,
@@ -400,15 +451,15 @@ function focusReducer(state: FocusState, action: Action): FocusState {
             reflection: action.reflection,
           };
         }),
-      };
+      });
 
     case "session/discard":
-      return {
+      return reconcileActiveSession({
         ...state,
         sessions: state.sessions.filter((session) => session.id !== action.id),
         activeSessionId:
           state.activeSessionId === action.id ? null : state.activeSessionId,
-      };
+      });
 
     case "session/checklist":
       return {
@@ -436,6 +487,8 @@ export interface StartSessionInput {
   focusItemId: string;
   plannedMinutes: number;
   checklist: SessionChecklistEntry[];
+  /** Calendar day this check-in/session should count toward. */
+  checkInDate?: string;
   dailySessionId?: string;
   lateCheckInMinutes?: number;
 }
@@ -448,9 +501,12 @@ export interface FocusStoreValue {
     updateSettings: (patch: Partial<Settings>) => void;
     resetToDemo: () => void;
     resetToEmpty: () => void;
+    replaceCategories: (categories: Category[]) => void;
     saveCategory: (category: Category) => void;
     removeCategory: (id: string) => void;
     saveGoal: (goal: Goal) => void;
+    /** Replace all goals (e.g. after loading commitments from the API). */
+    replaceGoals: (goals: Goal[]) => void;
     removeGoal: (id: string) => void;
     saveItem: (item: FocusItem) => void;
     removeItem: (id: string) => void;
@@ -505,7 +561,12 @@ export function FocusStoreProvider({
       dispatch({
         type: "hydrate",
         state: usable
-          ? { ...usable, dailySessions: usable.dailySessions ?? [] }
+          ? {
+              ...usable,
+              // Categories are now server-owned; discard legacy local/mock values.
+              categories: [],
+              dailySessions: usable.dailySessions ?? [],
+            }
           : createSeedState(),
       });
       setHydrated(true);
@@ -532,6 +593,7 @@ export function FocusStoreProvider({
       session: {
         id,
         focusItemId: input.focusItemId,
+        checkInDate: input.checkInDate ?? null,
         dailySessionId: input.dailySessionId ?? null,
         lateCheckInMinutes: input.lateCheckInMinutes,
         plannedMinutes: input.plannedMinutes,
@@ -554,9 +616,12 @@ export function FocusStoreProvider({
       updateSettings: (patch) => dispatch({ type: "settings/update", patch }),
       resetToDemo: () => dispatch({ type: "reset", state: createSeedState() }),
       resetToEmpty: () => dispatch({ type: "reset", state: createEmptyState() }),
+      replaceCategories: (categories) =>
+        dispatch({ type: "category/replace", categories }),
       saveCategory: (category) => dispatch({ type: "category/upsert", category }),
       removeCategory: (id) => dispatch({ type: "category/remove", id }),
       saveGoal: (goal) => dispatch({ type: "goal/upsert", goal }),
+      replaceGoals: (goals) => dispatch({ type: "goal/replace", goals }),
       removeGoal: (id) => dispatch({ type: "goal/remove", id }),
       saveItem: (item) => dispatch({ type: "item/upsert", item }),
       removeItem: (id) => dispatch({ type: "item/remove", id }),

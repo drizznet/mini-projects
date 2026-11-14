@@ -1,24 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
-import { GithubLogo, List, X } from '@phosphor-icons/react'
+import { ArrowUpRight, GithubLogo, List, X } from '@phosphor-icons/react'
 import { Link } from '@tanstack/react-router'
 import { DrizzMark } from '@/components/features/portfolio/drizz-mark'
 import { portfolio } from '@/config/portfolio'
-import { prefersReducedMotion } from '@/lib/motion'
 import { cn } from '@/lib/utils'
 
 const links = [
   { id: 'top', label: 'Home' },
-  { id: 'about', label: 'About' },
-  { id: 'work', label: 'Work' },
+  { id: 'services', label: 'Services' },
   { id: 'skills', label: 'Skills' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'work', label: 'Works' },
+  { id: 'process', label: 'Process' },
   { id: 'contact', label: 'Contact' },
 ] as const
-
-function navFloat(scrollY: number) {
-  const t = Math.min(1, Math.max(0, scrollY / 160))
-  if (prefersReducedMotion()) return t > 0.35 ? 1 : 0
-  return t * t * (3 - 2 * t)
-}
 
 export function PortfolioNav() {
   const barRef = useRef<HTMLElement>(null)
@@ -31,8 +26,6 @@ export function PortfolioNav() {
 
     const apply = () => {
       frame = 0
-      barRef.current?.style.setProperty('--dz-nav-float', String(navFloat(window.scrollY)))
-
       const mark = 140
       let current = 'top'
       for (const id of ids) {
@@ -57,27 +50,36 @@ export function PortfolioNav() {
   }, [])
 
   return (
-    <header ref={barRef} className="dz-nav-bar">
-      <div className="dz-nav flex items-center justify-between px-4 py-2.5 sm:px-6">
-        <nav className="hidden items-center gap-5 text-sm text-white md:flex">
+    <header ref={barRef} className="dz-nav-bar py-3">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6">
+        <a href="#top" className="flex items-center gap-2" aria-label={portfolio.domain}>
+          <DrizzMark />
+        </a>
+
+        <nav className="hidden items-center gap-6 text-sm font-medium text-slate-300 md:flex">
           {links.map((link) => (
             <a
               key={link.id}
               href={`#${link.id}`}
               data-active={active === link.id}
-              className="dz-nav-link px-0.5 py-1"
+              className={cn(
+                'transition-colors duration-200 hover:text-[var(--primary-color)]',
+                active === link.id && 'text-[var(--primary-color)] font-semibold'
+              )}
             >
               {link.label}
             </a>
           ))}
+          <Link
+            to="/meeva"
+            className="text-slate-400 transition-colors duration-200 hover:text-white"
+          >
+            Meeva HQ
+          </Link>
         </nav>
 
-        <a href="#top" className="md:absolute md:left-1/2 md:-translate-x-1/2" aria-label={portfolio.domain}>
-          <DrizzMark />
-        </a>
-
         <div className="flex items-center gap-3">
-          <div className="hidden items-center gap-2 md:flex">
+          <div className="hidden items-center gap-3 md:flex">
             {portfolio.socials.map((social) => (
               <a
                 key={social.id}
@@ -85,23 +87,25 @@ export function PortfolioNav() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label={social.label}
-                className="grid size-9 place-items-center rounded-full text-white/80 hover:text-white"
+                className="grid size-9 place-items-center rounded-full border border-white/10 text-slate-300 transition-colors hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
               >
-                {social.id === 'github' ? <GithubLogo className="size-5" /> : null}
+                {social.id === 'github' ? <GithubLogo className="size-4" /> : null}
               </a>
             ))}
-            <Link
-              to="/meeva"
-              className="rounded-full border border-white/15 px-3 py-1.5 text-xs font-medium text-white/80 hover:text-white"
+            <a
+              href="#contact"
+              className="dorbesh-btn text-xs py-2 px-4 rounded-xl"
             >
-              Meeva
-            </Link>
+              <span>Hire Me</span>
+              <ArrowUpRight className="size-3.5" />
+            </a>
           </div>
+
           <button
             type="button"
             aria-label="Open menu"
             aria-expanded={open}
-            className="grid size-10 place-items-center rounded-full border border-white/15 text-white md:hidden"
+            className="grid size-10 place-items-center rounded-xl border border-white/15 text-white md:hidden"
             onClick={() => setOpen(true)}
           >
             <List className="size-5" />
@@ -114,13 +118,13 @@ export function PortfolioNav() {
           <button
             type="button"
             aria-label="Close menu"
-            className="absolute inset-0 bg-black/70"
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
           <aside
             role="dialog"
             aria-modal="true"
-            className="absolute inset-x-3 top-3 rounded-3xl border border-white/10 bg-[#111] p-5 shadow-2xl"
+            className="absolute inset-x-3 top-3 rounded-2xl border border-[var(--hq-line-strong)] bg-[var(--hq-surface)] p-5 shadow-2xl"
           >
             <div className="flex items-center justify-between">
               <DrizzMark compact />
@@ -128,20 +132,22 @@ export function PortfolioNav() {
                 type="button"
                 aria-label="Close menu"
                 onClick={() => setOpen(false)}
-                className="grid size-10 place-items-center rounded-full border border-white/15"
+                className="grid size-9 place-items-center rounded-xl border border-white/15 text-white"
               >
                 <X className="size-5" />
               </button>
             </div>
-            <nav className="mt-6 grid gap-1">
+            <nav className="mt-6 grid gap-2">
               {links.map((link) => (
                 <a
                   key={link.id}
                   href={`#${link.id}`}
                   onClick={() => setOpen(false)}
                   className={cn(
-                    'rounded-xl px-3 py-3 text-lg',
-                    active === link.id ? 'text-dz-green' : 'text-white'
+                    'rounded-xl px-3 py-2.5 text-base font-medium transition-colors',
+                    active === link.id
+                      ? 'bg-[var(--primary-color)]/10 text-[var(--primary-color)] font-semibold'
+                      : 'text-slate-300 hover:text-white'
                   )}
                 >
                   {link.label}
@@ -150,10 +156,20 @@ export function PortfolioNav() {
               <Link
                 to="/meeva"
                 onClick={() => setOpen(false)}
-                className="rounded-xl px-3 py-3 text-lg text-white/70"
+                className="rounded-xl px-3 py-2.5 text-base text-slate-400 hover:text-white"
               >
-                Meeva
+                Meeva HQ
               </Link>
+              <div className="mt-4 pt-4 border-t border-white/10">
+                <a
+                  href="#contact"
+                  onClick={() => setOpen(false)}
+                  className="dorbesh-btn w-full justify-center py-3 text-sm rounded-xl"
+                >
+                  <span>Hire Me</span>
+                  <ArrowUpRight className="size-4" />
+                </a>
+              </div>
             </nav>
           </aside>
         </div>
@@ -161,3 +177,4 @@ export function PortfolioNav() {
     </header>
   )
 }
+

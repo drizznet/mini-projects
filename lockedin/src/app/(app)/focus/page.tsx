@@ -3,35 +3,17 @@
 import { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  ArrowRight,
-  CheckCheck,
-  ListChecks,
-  Play,
-  Radio,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowRight, CheckCheck } from "lucide-react";
 
 import { FocusMusic } from "@/components/focus/focus-music";
-import { CategoryDot, PriorityBadge } from "@/components/shared/badges";
-import { EmptyState } from "@/components/shared/empty-state";
-import { PageHeader } from "@/components/shared/page-header";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { ActiveSessionStage } from "@/components/sessions/active-session-stage";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useFocusData } from "@/hooks/use-focus-data";
 import { itemHoursForDate } from "@/lib/analytics";
-import { BRAND } from "@/lib/brand";
-import { SESSION_PRESETS } from "@/lib/constants";
-import { activeItems, lineageFor, planForDate } from "@/lib/selectors";
+import { lineageFor, planForDate } from "@/lib/selectors";
+import { isPlanFailed, loggedHoursForGoal } from "@/lib/plan-result";
+import { notifyDevice } from "@/lib/notifications";
 import { useFocusStore } from "@/lib/store/focus-store";
 import { cn, formatHours } from "@/lib/utils";
 
@@ -54,11 +36,12 @@ function FocusSetup() {
   const router = useRouter();
   const params = useSearchParams();
   const { state, actions } = useFocusStore();
-  const { index, now, todayKey, recommendations } = useFocusData({
+  const { index, now, todayKey } = useFocusData({
     tickMs: 30_000,
   });
 
   const requestedItemId = params.get("item");
+  const requestedCheckInDate = params.get("day");
   const requestedDailySessionId = params.get("dailySession");
   const requestedGoalId = params.get("goal");
   const requestedMinutes = Number(params.get("minutes"));
@@ -95,26 +78,24 @@ function FocusSetup() {
     [state, todayKey, now],
   );
 
-  const available = activeItems(state);
   const lineage = selectedItemId ? lineageFor(index, selectedItemId) : undefined;
+  const selectedFailed = Boolean(
+    lineage?.goal &&
+      isPlanFailed(lineage.goal, loggedHoursForGoal(state, lineage.goal.id, now), todayKey),
+  );
   const currentSession = state.sessions.find(
     (session) => session.id === state.activeSessionId,
   );
-  const currentSessionLineage = currentSession
-    ? lineageFor(index, currentSession.focusItemId)
-    : undefined;
-  const cannotSwitchSession =
-    currentSession?.status === "running" ||
-    (currentSession?.status === "paused" &&
-      currentSessionLineage?.item.focusMode === "continuous");
-  const switchingFromPausedSession =
-    currentSession?.status === "paused" && !cannotSwitchSession;
+
+  if (currentSession) {
+    return <ActiveSessionStage />;
+  }
 
   const readyCount = template.filter((entry) => checked[entry.id]).length;
   const allReady = template.length > 0 && readyCount === template.length;
 
   const start = () => {
-    if (!selectedItemId) return;
+    if (!selectedItemId || selectedFailed) return;
     actions.startSession({
       focusItemId: selectedItemId,
       plannedMinutes: requestedDailySession?.commitmentMinutes ?? minutes,
@@ -123,363 +104,219 @@ function FocusSetup() {
         label: entry.label,
         checked: Boolean(checked[entry.id]),
       })),
+      checkInDate:
+        requestedCheckInDate && /^\d{4}-\d{2}-\d{2}$/.test(requestedCheckInDate)
+          ? requestedCheckInDate
+          : undefined,
       dailySessionId: requestedDailySessionId ?? undefined,
       lateCheckInMinutes:
         lateCheckIn && Number.isFinite(lateCheckInMinutes)
           ? Math.max(1, lateCheckInMinutes)
           : undefined,
     });
-    router.push("/focus/session");
-  };
-
-  if (cannotSwitchSession) {
-    return (
-      <div className="space-y-6">
-        <PageHeader
-          title={currentSession?.status === "paused" ? "Continuous work is paused" : "Session already running"}
-          description={
-            currentSession?.status === "paused"
-              ? "This work item is set to one continuous block. Resume or end it before starting another session."
-              : "Finish or pause the current session before starting another one."
-          }
-        />
-        <Card>
-          <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
-            <span className="grid size-12 place-items-center rounded-full bg-primary/12">
-              <Radio className="size-5 animate-pulse text-primary" />
-            </span>
-            <p className="text-sm text-muted-foreground">
-              {currentSession?.status === "paused"
-                ? "This work item is protected as one continuous block."
-                : `${BRAND.name} keeps one running session at a time so the numbers stay honest.`}
-            </p>
-            <Button asChild>
-              <Link href="/focus/session">
-                Return to session
-                <ArrowRight className="size-3.5" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+    void notifyDevice(
+      "Focus session started",
+      `${lineage?.item.name ?? "Your selected plan"} is now locked in.`,
+      "lockin-session-started",
     );
-  }
+    router.push("/lockin");
+  };
 
   const plannedItems = (plan?.allocations ?? [])
     .map((allocation) => lineageFor(index, allocation.focusItemId))
-    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+    .filter((entry): entry is NonNullable<typeof entry> => {
+      if (!entry?.goal) return Boolean(entry);
+      return !isPlanFailed(entry.goal, loggedHoursForGoal(state, entry.goal.id, now), todayKey);
+    });
+  const canLockIn = Boolean(selectedItemId) && allReady && !selectedFailed;
+
+  const choose = (itemId: string, hours: number) => {
+    setSelectedItemId(itemId);
+    setMinutes(Math.max(15, Math.round((hours > 0 ? hours : 0.5) * 60)));
+  };
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Prepare to focus"
-        description="Pick the work, set the block length, then clear the runway. Preparation is the cheapest way to protect a session."
-      />
+    <div>
+      <section className="overflow-hidden rounded-2xl border border-border/70 bg-card shadow-xs">
+        <div className="px-6 pt-6 sm:px-8">
+          <p className="text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
+            Prepare to lock in
+          </p>
+        </div>
 
-      {switchingFromPausedSession ? (
-        <Card className="border-primary/20 bg-primary/[0.035]">
-          <CardContent className="flex items-start gap-3 py-4 text-sm">
-            <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
-              <Radio className="size-3.5" />
-            </span>
-            <p className="text-muted-foreground">
-              Your previous work item is paused. You can focus on this one now;
-              resume the paused session later from Sessions.
-            </p>
-          </CardContent>
-        </Card>
-      ) : null}
-
-      <div className="grid gap-4 lg:grid-cols-3">
-        <div className="space-y-4 lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <div>
-                <CardTitle>1 · What are you focusing on?</CardTitle>
-                <CardDescription>
-                  Today&apos;s plan first, then everything else that is active
-                </CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {available.length === 0 ? (
-                <EmptyState
-                  icon={ListChecks}
-                  title="No focus items yet"
-                  description="Focus items are the concrete work inside a goal. Create one to start a session."
-                  action={
-                    <Button size="sm" asChild>
-                      <Link href="/goals">Create a goal</Link>
-                    </Button>
-                  }
-                />
-              ) : (
-                <>
-                  {plannedItems.length > 0 ? (
-                    <ItemGroup
-                      label="In today's plan"
-                      items={plannedItems.map((entry) => ({
-                        lineage: entry,
-                        meta: (() => {
-                          const allocated =
-                            plan?.allocations.find(
-                              (allocation) =>
-                                allocation.focusItemId === entry.item.id,
-                            )?.plannedHours ?? 0;
-                          const done = actualByItem.get(entry.item.id) ?? 0;
-                          return `${formatHours(done)} of ${formatHours(allocated)}`;
-                        })(),
-                      }))}
-                      selectedId={selectedItemId}
-                      onSelect={setSelectedItemId}
-                    />
-                  ) : null}
-
-                  <ItemGroup
-                    label="Recommended"
-                    items={recommendations
-                      .filter(
-                        (entry) =>
-                          !plannedItems.some(
-                            (planned) => planned.item.id === entry.item.id,
-                          ),
-                      )
-                      .map((entry) => {
-                        const entryLineage = lineageFor(index, entry.item.id);
-                        return entryLineage
-                          ? {
-                              lineage: entryLineage,
-                              meta: entry.reasons[0] ?? "",
-                            }
-                          : null;
-                      })
-                      .filter(
-                        (entry): entry is NonNullable<typeof entry> =>
-                          entry !== null,
-                      )}
-                    selectedId={selectedItemId}
-                    onSelect={setSelectedItemId}
-                  />
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div>
-                <CardTitle>2 · How long?</CardTitle>
-                <CardDescription>
-                  Longer blocks score better, but only if you finish them
-                </CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              {SESSION_PRESETS.map((preset) => (
-                <Button
-                  key={preset}
-                  variant={minutes === preset ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setMinutes(preset)}
-                  className="min-w-20"
-                >
-                  {preset} min
-                </Button>
-              ))}
-              {!SESSION_PRESETS.includes(
-                minutes as (typeof SESSION_PRESETS)[number],
-              ) ? (
-                <Button variant="default" size="sm" className="min-w-20">
-                  {minutes} min
-                </Button>
-              ) : null}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <div>
-                <CardTitle className="flex items-center gap-1.5">
-                  <ShieldCheck className="size-3.5" />
-                  3 · Pre-focus checklist
-                </CardTitle>
-                <CardDescription>
-                  {readyCount} of {template.length} ready · edit the list in
-                  Settings
-                </CardDescription>
-              </div>
-              {template.length > 0 ? (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() =>
-                    setChecked(
-                      Object.fromEntries(
-                        template.map((entry) => [entry.id, true]),
-                      ),
+        <div className="px-4 pt-4 pb-2 sm:px-5">
+          {plannedItems.length === 0 && !lineage ? (
+            <div className="flex min-h-72 flex-col items-start justify-end rounded-xl bg-secondary px-6 py-8 sm:px-8">
+              <p className="text-[11px] font-medium tracking-[0.16em] text-muted-foreground uppercase">
+                Today&apos;s plans
+              </p>
+              <p className="mt-4 max-w-sm text-3xl font-medium tracking-tight text-balance">
+                Nothing is planned for today
+              </p>
+              <Link
+                href="/plans"
+                className="mt-6 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                My plans
+              </Link>
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-xl bg-secondary/60">
+              <ul>
+                {(lineage && !plannedItems.some((entry) => entry.item.id === lineage.item.id)
+                  ? [lineage, ...plannedItems]
+                  : [...plannedItems].sort((a, b) =>
+                      a.item.id === selectedItemId ? -1 : b.item.id === selectedItemId ? 1 : 0,
                     )
-                  }
-                >
-                  <CheckCheck className="size-3.5" />
-                  Check all
-                </Button>
-              ) : null}
-            </CardHeader>
-            <CardContent>
-              <ul className="grid gap-1.5 sm:grid-cols-2">
-                {template.map((entry) => {
-                  const isChecked = Boolean(checked[entry.id]);
+                ).map((entry) => {
+                  const active = selectedItemId === entry.item.id;
+                  const allocated =
+                    plan?.allocations.find((allocation) => allocation.focusItemId === entry.item.id)
+                      ?.plannedHours ?? 0;
+                  const hours = allocated || entry.item.estimatedDailyHours || 0;
+                  const done = actualByItem.get(entry.item.id) ?? 0;
                   return (
-                    <li key={entry.id}>
-                      <Label
+                    <li key={entry.item.id} className="border-b border-border/40 last:border-b-0">
+                      <button
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => choose(entry.item.id, hours)}
                         className={cn(
-                          "flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2.5 text-xs transition-colors",
-                          isChecked
-                            ? "border-health-excellent/35 bg-health-excellent/8 text-foreground"
-                            : "border-border/70 hover:bg-secondary/50",
+                          "flex w-full items-end justify-between gap-6 px-6 text-left transition-colors sm:px-8",
+                          active
+                            ? "min-h-64 bg-foreground py-8 text-background sm:min-h-72"
+                            : "py-5 text-foreground hover:bg-secondary",
                         )}
                       >
-                        <Checkbox
-                          checked={isChecked}
-                          onCheckedChange={(value) =>
-                            setChecked((current) => ({
-                              ...current,
-                              [entry.id]: value === true,
-                            }))
-                          }
-                        />
-                        {entry.label}
-                      </Label>
+                        <span className="min-w-0">
+                          <span
+                            className={cn(
+                              "block truncate text-[11px] font-medium tracking-[0.16em] uppercase",
+                              active ? "text-background/60" : "text-muted-foreground",
+                            )}
+                          >
+                            {entry.goal?.title ?? "Plan"}
+                          </span>
+                          <span
+                            className={cn(
+                              "block truncate font-medium tracking-tight",
+                              active
+                                ? "mt-4 text-3xl sm:text-4xl"
+                                : "mt-1.5 text-base",
+                            )}
+                          >
+                            {entry.item.name}
+                          </span>
+                          {active && done > 0 ? (
+                            <span className="mt-3 block text-sm text-background/60 tabular">
+                              {formatHours(done)} already in
+                            </span>
+                          ) : null}
+                        </span>
+                        <span
+                          className={cn(
+                            "shrink-0 leading-none font-medium tracking-[-0.045em] tabular",
+                            active
+                              ? "text-[3.25rem] text-background/80 sm:text-[4.25rem]"
+                              : "text-2xl text-muted-foreground",
+                          )}
+                        >
+                          {formatHours(active ? minutes / 60 : hours)}
+                        </span>
+                      </button>
                     </li>
                   );
                 })}
               </ul>
-            </CardContent>
-          </Card>
+            </div>
+          )}
+          {selectedFailed ? (
+            <p className="px-2 pt-3 text-sm text-muted-foreground">
+              This plan ended under 70% of its time, so it can&apos;t be locked in again.
+            </p>
+          ) : null}
         </div>
 
-        <div className="space-y-4">
-          <Card className="sticky top-20">
-            <CardHeader>
-              <div>
-                <CardTitle>Ready to start</CardTitle>
-                <CardDescription>
-                  {lineage
-                    ? `${minutes} minutes on ${lineage.item.name}`
-                    : "Choose a focus item to continue"}
-                </CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {lineage ? (
-                <div className="rounded-xl border border-border/70 bg-card-elevated/50 p-3.5">
-                  <p className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
-                    <CategoryDot
-                      color={
-                        lineage.category
-                          ? `var(--${lineage.category.color})`
-                          : "var(--chart-1)"
-                      }
-                    />
-                    {lineage.category?.name} · {lineage.goal?.title}
-                  </p>
-                  <p className="mt-1 text-sm font-medium">{lineage.item.name}</p>
-                  {lineage.item.notes ? (
-                    <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
-                      {lineage.item.notes}
-                    </p>
-                  ) : null}
-                </div>
-              ) : null}
-
-              <Button
-                size="lg"
-                className="w-full"
-                disabled={!selectedItemId || !allReady}
-                onClick={start}
-              >
-                <Play className="size-4" />
-                Start focus session
-              </Button>
-
-              {selectedItemId && !allReady ? (
+        {template.length > 0 ? (
+          <div className="border-t border-border/60 px-6 py-5 sm:px-8">
+            <div className="flex items-baseline justify-between gap-3">
+              <p className="text-[11px] font-medium tracking-[0.16em] text-muted-foreground uppercase">
+                Before you lock in
+              </p>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-muted-foreground tabular">
+                  {readyCount} of {template.length}
+                </span>
                 <button
                   type="button"
-                  onClick={start}
-                  className="w-full text-center text-[11px] text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+                  onClick={() =>
+                    setChecked(Object.fromEntries(template.map((entry) => [entry.id, true])))
+                  }
+                  className="inline-flex items-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
                 >
-                  Skip the remaining {template.length - readyCount} check
-                  {template.length - readyCount === 1 ? "" : "s"} and start anyway
+                  <CheckCheck className="size-3.5" />
+                  Check all
                 </button>
-              ) : null}
-            </CardContent>
-          </Card>
-
-          <FocusMusic links={state.settings.musicLinks} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ItemGroup({
-  label,
-  items,
-  selectedId,
-  onSelect,
-}: {
-  label: string;
-  items: {
-    lineage: NonNullable<ReturnType<typeof lineageFor>>;
-    meta: string;
-  }[];
-  selectedId: string | null;
-  onSelect: (id: string) => void;
-}) {
-  if (items.length === 0) return null;
-
-  return (
-    <div className="space-y-1.5">
-      <p className="text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">
-        {label}
-      </p>
-      <ul className="space-y-1.5">
-        {items.map(({ lineage, meta }) => {
-          const active = selectedId === lineage.item.id;
-          return (
-            <li key={lineage.item.id}>
+              </div>
+            </div>
+            <ul className="mt-1">
+              {template.map((entry) => {
+                const isChecked = Boolean(checked[entry.id]);
+                return (
+                  <li key={entry.id} className="border-b border-border/60 last:border-b-0">
+                    <label className="flex cursor-pointer items-center gap-3 py-3.5 text-sm">
+                      <Checkbox
+                        checked={isChecked}
+                        onCheckedChange={(value) =>
+                          setChecked((current) => ({
+                            ...current,
+                            [entry.id]: value === true,
+                          }))
+                        }
+                      />
+                      <span className={isChecked ? "text-foreground" : "text-muted-foreground"}>
+                        {entry.label}
+                      </span>
+                    </label>
+                  </li>
+                );
+              })}
+            </ul>
+            {selectedItemId && !allReady && !selectedFailed ? (
               <button
                 type="button"
-                onClick={() => onSelect(lineage.item.id)}
-                aria-pressed={active}
-                className={cn(
-                  "flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors",
-                  active
-                    ? "border-primary/45 bg-primary/8"
-                    : "border-border/70 hover:border-border hover:bg-secondary/50",
-                )}
+                onClick={start}
+                className="mt-3 text-xs text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
               >
-                <CategoryDot
-                  color={
-                    lineage.category
-                      ? `var(--${lineage.category.color})`
-                      : "var(--chart-1)"
-                  }
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium">
-                    {lineage.item.name}
-                  </span>
-                  <span className="block truncate text-[11px] text-muted-foreground">
-                    {meta || lineage.goal?.title}
-                  </span>
-                </span>
-                <PriorityBadge priority={lineage.item.priority} />
+                Skip the remaining {template.length - readyCount} and lock in anyway
               </button>
-            </li>
-          );
-        })}
-      </ul>
+            ) : null}
+          </div>
+        ) : null}
+
+        <FocusMusic links={state.settings.musicLinks} />
+
+        <div className="flex items-stretch border-t border-border/60">
+          <p className="flex min-w-0 flex-1 items-center truncate px-6 text-sm text-muted-foreground sm:px-8">
+            {lineage ? lineage.item.name : "Pick a plan"}
+          </p>
+          <button
+            type="button"
+            onClick={start}
+            disabled={!canLockIn}
+            className={cn(
+              "flex w-32 shrink-0 items-center justify-center gap-1.5 py-5 text-sm font-medium transition-colors sm:w-40",
+              canLockIn
+                ? "bg-foreground text-background hover:bg-foreground/90"
+                : "cursor-not-allowed bg-secondary text-muted-foreground",
+            )}
+          >
+            Lock in
+            <ArrowRight className="size-3.5" />
+          </button>
+        </div>
+      </section>
     </div>
   );
 }
+

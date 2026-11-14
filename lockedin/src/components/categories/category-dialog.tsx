@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CATEGORY_ICON_KEYS, resolveCategoryIcon } from "@/lib/icons";
 import type { Category, ColorToken } from "@/lib/types";
-import { cn, createId } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 const COLOR_TOKENS: ColorToken[] = [
   "chart-1",
@@ -41,7 +41,13 @@ export function CategoryDialog({
 }: {
   trigger: ReactNode;
   category?: Category;
-  onSave: (category: Category) => void;
+  onSave: (category: {
+    id?: string;
+    name: string;
+    description: string;
+    color: ColorToken;
+    icon: string;
+  }) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState(category?.name ?? "");
@@ -61,12 +67,11 @@ export function CategoryDialog({
   const submit = () => {
     if (!name.trim()) return;
     onSave({
-      id: category?.id ?? createId("cat"),
+      id: category?.id,
       name: name.trim(),
       description: description.trim(),
       color,
       icon,
-      createdAt: category?.createdAt ?? new Date().toISOString(),
     });
     setOpen(false);
   };

@@ -58,7 +58,7 @@ function ThemeSync() {
     document.documentElement.classList.toggle("dark", dark);
     document.documentElement.style.colorScheme = dark ? "dark" : "light";
     document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((meta) => {
-      meta.content = dark ? "#17121a" : "#faf9f5";
+      meta.content = dark ? "#161616" : "#f4f4f5";
     });
   }, [hydrated, state.settings.theme]);
 

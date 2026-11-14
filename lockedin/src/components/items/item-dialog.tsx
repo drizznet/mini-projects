@@ -132,10 +132,10 @@ export function ItemDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label>Goal</Label>
+            <Label>Plan</Label>
             <Select value={goalId} onValueChange={setGoalId}>
               <SelectTrigger>
-                <SelectValue placeholder="Pick a goal" />
+                <SelectValue placeholder="Pick a plan" />
               </SelectTrigger>
               <SelectContent>
                 {goals.map((goal) => (

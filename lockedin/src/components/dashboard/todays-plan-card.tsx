@@ -49,12 +49,12 @@ export function TodaysPlanCard({
           <EmptyState
             icon={Target}
             title="Nothing scheduled for today"
-            description="Create a goal and its focus work will appear here automatically."
+            description="Create a plan and its work items will appear here automatically."
           />
         ) : visibleDailySessions.length === 0 ? (
           <div className="rounded-xl border border-dashed border-primary/25 bg-primary/5 px-4 py-8 text-center">
             <p className="text-sm font-medium text-primary">Your active work is shown above.</p>
-            <p className="mt-1 text-xs text-muted-foreground">Other commitments will appear here when available.</p>
+            <p className="mt-1 text-xs text-muted-foreground">Other plans will appear here when available.</p>
           </div>
         ) : (
           visibleDailySessions.map((dailySession) => {

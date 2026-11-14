@@ -10,9 +10,9 @@ Things to revisit before / while shipping this API to production.
 
 ## Database
 
-- [ ] **Apply Prisma migrations on a live DB** — schema is ready (`prisma/schema.prisma`). With Postgres up + `DATABASE_URL` set: `pnpm db:migrate` (or `pnpm db:push` for prototypes), then exercise `/api/todos`.
+- [ ] **Apply Prisma migrations on a live DB** — schema is ready (`prisma/schema.prisma`). With Postgres up + `DATABASE_URL` set: `pnpm db:migrate` (or `pnpm db:push` for prototypes), then exercise the active product endpoints.
 - [ ] **Prod secrets** — default Compose password `server` / URL in `.env.example` are local-only; never ship them.
-- [ ] **Prisma 7 upgrade** — pinned on Prisma 6 for classic `url = env("DATABASE_URL")` in schema. v7 needs `prisma.config.ts` + driver adapter; revisit later.
+- [ ] **Prisma 8 upgrade** — Prisma 8 is currently a release candidate; revisit after the stable release.
 
 ## Learning
 

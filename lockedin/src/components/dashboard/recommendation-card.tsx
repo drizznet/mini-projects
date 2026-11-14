@@ -52,10 +52,10 @@ export function RecommendationCard({
           <EmptyState
             icon={Sparkles}
             title="Nothing to recommend yet"
-            description="Create a goal with at least one focus item and the engine will start ranking your work."
+        description="Create a plan with at least one work item and the engine will start ranking your work."
             action={
               <Button size="sm" variant="subtle" asChild>
-                <Link href="/goals">Create a goal</Link>
+                <Link href="/plans">New plan</Link>
               </Button>
             }
           />
@@ -92,7 +92,7 @@ export function RecommendationCard({
               <div className="mt-4 flex items-center gap-2">
                 <Button size="sm" variant="subtle" asChild>
                   <Link
-                    href={`/focus?item=${top.item.id}&minutes=${top.suggestedMinutes}`}
+                    href={`/lockin?item=${top.item.id}&minutes=${top.suggestedMinutes}`}
                   >
                     Focus for {top.suggestedMinutes} min
                     <ArrowRight className="size-3.5" />
@@ -114,7 +114,7 @@ export function RecommendationCard({
                 {extras.map((entry) => (
                   <Link
                     key={entry.item.id}
-                    href={`/focus?item=${entry.item.id}&minutes=${entry.suggestedMinutes}`}
+                    href={`/lockin?item=${entry.item.id}&minutes=${entry.suggestedMinutes}`}
                     className="flex items-center gap-2.5 rounded-lg px-2 py-2 transition-colors hover:bg-secondary/60"
                   >
                     <CategoryDot color={entry.categoryColor} />

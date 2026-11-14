@@ -15,7 +15,7 @@ import {
   UserRound,
 } from "lucide-react";
 
-import { GoalDialog } from "@/components/goals/goal-dialog";
+import { CommitmentDialog } from "@/components/commitments/commitment-dialog";
 import { SidebarContent } from "@/components/layout/sidebar-content";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -30,6 +30,7 @@ import { findNavItem } from "@/lib/navigation";
 import { BRAND } from "@/lib/brand";
 import { clearLocalAuthSession } from "@/lib/auth";
 import { buildIndex, dailySessionsForDate, lineageFor } from "@/lib/selectors";
+import { isPlanFailed, loggedHoursForGoal } from "@/lib/plan-result";
 import { sessionActiveMs } from "@/lib/analytics";
 import { formatClock, fromDateKey, formatTime } from "@/lib/utils";
 import { useFocusData } from "@/hooks/use-focus-data";
@@ -97,7 +98,7 @@ export function AppTopbar() {
             <span className="sr-only">Open navigation</span>
           </Button>
         </SheetTrigger>
-        <SheetContent className="p-0">
+        <SheetContent className="bg-sidebar p-0 text-sidebar-foreground">
           <SheetTitle className="sr-only">Navigation</SheetTitle>
           <SidebarContent mobile onNavigate={() => setMobileOpen(false)} />
         </SheetContent>
@@ -119,7 +120,7 @@ export function AppTopbar() {
 
       {pathname !== "/dashboard" && state.settings.sessionIslandDisplay === "navbar" && activeSession ? (
         <Link
-          href="/focus/session"
+          href="/lockin"
           className="group absolute left-1/2 hidden h-9 -translate-x-1/2 items-center gap-2 overflow-hidden rounded-full border-2 border-primary/45 bg-primary/12 px-3.5 text-[11px] text-primary shadow-md shadow-primary/15 ring-2 ring-primary/10 transition-[height,padding,box-shadow,background-color] duration-300 ease-out hover:h-12 hover:bg-primary/18 hover:px-4 hover:shadow-lg hover:shadow-primary/25 md:flex"
           aria-label={`Open active session: ${activeLineage?.item.name ?? "Focus session"}`}
         >
@@ -137,7 +138,9 @@ export function AppTopbar() {
             {formatClock(sessionActiveMs(activeSession, now))}
           </span>
         </Link>
-      ) : checkInReminder && reminderGoal ? (
+      ) : checkInReminder &&
+        reminderGoal &&
+        !isPlanFailed(reminderGoal, loggedHoursForGoal(state, reminderGoal.id, now), todayKey) ? (
         <Link
           href={`/dashboard?goal=${encodeURIComponent(reminderGoal.id)}&focus=${encodeURIComponent(reminderFocusItem?.id ?? "")}`}
           className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-2 rounded-full border border-health-slipping/25 bg-health-slipping/10 px-2.5 py-1 text-[11px] text-health-behind transition-colors hover:bg-health-slipping/15 md:flex"
@@ -155,7 +158,7 @@ export function AppTopbar() {
       ) : null}
 
       <div className="ml-auto flex items-center gap-2.5">
-        <GoalDialog
+        <CommitmentDialog
           categories={state.categories}
           trigger={
             <Button
@@ -165,7 +168,7 @@ export function AppTopbar() {
               disabled={state.categories.length === 0}
             >
               <Plus className="size-3.5" />
-              <span className="hidden sm:inline">New goal</span>
+              <span className="hidden sm:inline">New plan</span>
             </Button>
           }
           onSave={(goal) => {

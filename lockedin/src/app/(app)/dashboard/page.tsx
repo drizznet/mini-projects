@@ -1,23 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
-import { DashboardGreeting } from "@/components/dashboard/greeting";
-import { RecommendationCard } from "@/components/dashboard/recommendation-card";
-import { TodaysWorkItemsCard } from "@/components/dashboard/todays-work-items-card";
+import { TodayLanding } from "@/components/dashboard/today-briefing";
+import { buildCheckIns, TodayPulse } from "@/components/dashboard/today-board";
 import { useFocusData } from "@/hooks/use-focus-data";
-import { countInterruptions, sessionActiveMs } from "@/lib/analytics";
 import { lineageFor, planForDate } from "@/lib/selectors";
+import { formatHours } from "@/lib/utils";
 import { useCurrentUser } from "@/services/auth";
+import { useToday } from "@/services/today";
 
 /**
- * One-screen dashboard: today's numbers, the plan, and what to do next.
- * Charts, debt, streaks and history live on Analytics / Sessions / Goals.
+ * Today is the landing surface: the week's kept days, and how the day is going.
  */
 export default function DashboardPage() {
   const data = useFocusData({ tickMs: 15_000 });
   const { data: user } = useCurrentUser();
-  const { state, index, now, todayKey, today, streaks, recommendations } = data;
+  const { data: todayResponse } = useToday();
+  const { state, index, now, todayKey, today, last7, streaks } = data;
 
   const activeSession =
     state.sessions.find(
@@ -30,77 +30,67 @@ export default function DashboardPage() {
     : undefined;
 
   const todayPlan = planForDate(state, todayKey);
-  const dailyCommitmentHours = (todayPlan?.allocations ?? []).reduce(
+  const allocations = todayPlan?.allocations ?? [];
+  const localPlannedHours = allocations.reduce(
     (total, allocation) => total + allocation.plannedHours,
     0,
   );
-  const remaining = Math.max(0, dailyCommitmentHours - today.actualHours);
-  const [highlightedFocusItemId, setHighlightedFocusItemId] = useState<string | null>(null);
+  const plannedHours = todayResponse
+    ? todayResponse.data.summary.plannedMinutes / 60
+    : localPlannedHours;
+  const liveName = activeSession ? activeLineage?.item.name ?? "this session" : null;
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const focusItemId = params.get("focus");
-    setHighlightedFocusItemId(focusItemId);
+  const rows = useMemo(
+    () =>
+      buildCheckIns({
+        allocations: todayPlan?.allocations ?? [],
+        focusItems: state.focusItems,
+        goals: state.goals,
+        sessions: state.sessions,
+        activeSessionId: state.activeSessionId,
+        now,
+        todayKey,
+        index,
+      }),
+    [index, now, state.activeSessionId, state.focusItems, state.goals, state.sessions, todayKey, todayPlan],
+  );
 
-    if (!focusItemId) return;
-    const frame = window.requestAnimationFrame(() => {
-      document.getElementById(`today-work-item-${focusItemId}`)?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, []);
+  const open = rows.filter((row) => row.status !== "Met" && !row.live).length;
+  const read = liveName
+    ? `You are ${activeSession?.status === "paused" ? "paused on" : "in"} ${liveName}. Leave it only when the block is finished.`
+    : plannedHours > 0
+      ? today.actualHours + 0.05 >= plannedHours
+        ? "Today's planned time is covered."
+        : `${open} still open. ${formatHours(today.actualHours)} of ${formatHours(plannedHours)} is protected.`
+      : "Nothing is planned for today. The work still in motion is what the day is for.";
+
+  const activeCount = state.sessions.filter(
+    (session) => session.status === "running" || session.status === "paused",
+  ).length;
 
   return (
-    <div className="flex min-h-0 flex-col gap-4 lg:h-[calc(100svh-7.5rem)]">
-      <DashboardGreeting
+    <div className="space-y-4">
+      <TodayLanding
         name={
           user?.profile?.displayName ??
           user?.email?.split("@")[0] ??
           state.settings.displayName
         }
-        todayKey={todayKey}
-        focusScore={today.focusScore}
-        intention=""
         now={now}
+        todayKey={todayKey}
+        days={last7}
+        qualifyingDays={streaks.qualifyingDays}
         focusedHours={today.actualHours}
-        remainingHours={remaining}
-        streak={streaks.currentStreak}
-        interruptions={today.interruptions}
-        activeWork={
-          activeSession
-            ? {
-                focusItemId: activeSession.focusItemId,
-                itemName: activeLineage?.item.name ?? "Focus session",
-                goalName: activeLineage?.goal?.title ?? "No goal",
-                elapsedMs: sessionActiveMs(activeSession, now),
-                plannedMinutes: activeSession.plannedMinutes,
-                sessionId: activeSession.id,
-                interruptions: countInterruptions(state, activeSession),
-                paused: activeSession.status === "paused",
-              }
-            : null
-        }
+        plannedHours={plannedHours}
+        read={read}
       />
-
-      <section className="grid min-h-0 flex-1 gap-4 lg:grid-cols-5">
-        <div className="min-h-0 lg:col-span-3">
-          <TodaysWorkItemsCard
-            allocations={todayPlan?.allocations ?? []}
-            categories={state.categories}
-            focusItems={state.focusItems}
-            sessions={state.sessions}
-            activeSessionId={state.activeSessionId}
-            now={now}
-            dateKey={todayKey}
-            highlightedFocusItemId={highlightedFocusItemId}
-          />
-        </div>
-        <div className="min-h-0 lg:col-span-2">
-          <RecommendationCard recommendations={recommendations} compact />
-        </div>
-      </section>
+      <TodayPulse
+        rows={rows}
+        sessions={state.sessions}
+        activeCount={activeCount}
+        now={now}
+        todayKey={todayKey}
+      />
     </div>
   );
 }

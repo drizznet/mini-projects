@@ -44,19 +44,42 @@ export function useDraggableIsland(position: SessionIslandPosition, onPositionCh
   const drag = useRef<Drag | null>(null);
   const [point, setPoint] = useState<Point | null>(null);
   const [target, setTarget] = useState<SessionIslandPosition | null>(null);
+  const [targetPoint, setTargetPoint] = useState<Point | null>(null);
+  const [targetSize, setTargetSize] = useState<{ width: number; height: number } | null>(null);
+  const [pendingPosition, setPendingPosition] = useState<SessionIslandPosition | null>(null);
+
+  function pointForPosition(next: SessionIslandPosition, width: number, height: number): Point {
+    const box = bounds(width, height);
+    return {
+      x: next.endsWith("left") ? box.left : next.endsWith("right") ? box.right : (box.left + box.right) / 2,
+      y: next.startsWith("top") ? box.top : box.bottom,
+    };
+  }
 
   function cancelDrag() {
     drag.current = null;
     setPoint(null);
     setTarget(null);
+    setTargetPoint(null);
+    setTargetSize(null);
+    setPendingPosition(null);
   }
 
   useEffect(() => {
-    const cancel = () => { drag.current = null; setPoint(null); setTarget(null); };
+    const cancel = () => { drag.current = null; setPoint(null); setTarget(null); setTargetPoint(null); setTargetSize(null); setPendingPosition(null); };
     window.addEventListener("resize", cancel);
     window.addEventListener("blur", cancel);
     return () => { window.removeEventListener("resize", cancel); window.removeEventListener("blur", cancel); };
   }, []);
+
+  useEffect(() => {
+    if (pendingPosition !== position) return;
+    setPendingPosition(null);
+    setPoint(null);
+    setTarget(null);
+    setTargetPoint(null);
+    setTargetSize(null);
+  }, [pendingPosition, position]);
 
   function pointerDown(event: PointerEvent<HTMLButtonElement>) {
     if (!event.isPrimary || event.button !== 0 || !panelRef.current) return;
@@ -85,15 +108,29 @@ export function useDraggableIsland(position: SessionIslandPosition, onPositionCh
       y: Math.min(box.bottom, Math.max(box.top, active.origin.y + dy)),
     };
     setPoint(active.current);
-    setTarget(nearestPosition(active, position));
+    const nextTarget = nearestPosition(active, position);
+    setTarget(nextTarget);
+    setTargetPoint(pointForPosition(nextTarget, active.width, active.height));
+    setTargetSize({ width: active.width, height: active.height });
   }
 
   function pointerUp(event: PointerEvent<HTMLButtonElement>) {
     const active = drag.current;
     if (!active || active.pointerId !== event.pointerId) return;
     pointerMove(event);
-    if (active.moved) onPositionChange(nearestPosition(active, position));
-    cancelDrag();
+    if (active.moved) {
+      const next = nearestPosition(active, position);
+      const nextPoint = pointForPosition(next, active.width, active.height);
+      drag.current = null;
+      setPoint(nextPoint);
+      setTarget(next);
+      setTargetPoint(nextPoint);
+      setTargetSize({ width: active.width, height: active.height });
+      setPendingPosition(next);
+      onPositionChange(next);
+    } else {
+      cancelDrag();
+    }
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
   }
 
@@ -112,10 +149,12 @@ export function useDraggableIsland(position: SessionIslandPosition, onPositionCh
   }
 
   return {
-    panelRef, point, target,
+    panelRef, point, target, targetPoint, targetSize,
     handleProps: {
       onPointerDown: pointerDown, onPointerMove: pointerMove, onPointerUp: pointerUp,
-      onPointerCancel: cancelDrag, onLostPointerCapture: cancelDrag, onKeyDown: keyDown,
+      onPointerCancel: cancelDrag,
+      onLostPointerCapture: () => { if (drag.current) cancelDrag(); },
+      onKeyDown: keyDown,
     },
   };
 }

@@ -13,7 +13,7 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#410d4b",
+          background: "#292929",
           borderRadius: 8,
         }}
       >
@@ -25,14 +25,14 @@ export default function Icon() {
             strokeLinecap="round"
           />
           <rect x="9.35" y="14.35" width="13.3" height="11.4" rx="3.1" fill="white" />
-          <circle cx="16" cy="19.1" r="1.7" fill="#410d4b" />
+          <circle cx="16" cy="19.1" r="1.7" fill="#292929" />
           <rect
             x="15.25"
             y="20.35"
             width="1.5"
             height="2.35"
             rx="0.75"
-            fill="#410d4b"
+            fill="#292929"
           />
         </svg>
       </div>

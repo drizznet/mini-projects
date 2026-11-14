@@ -113,6 +113,8 @@ export interface SessionChecklistEntry {
 export interface FocusSession {
   id: string;
   focusItemId: string;
+  /** Local day (`YYYY-MM-DD`) this session counts toward on the calendar. */
+  checkInDate?: string | null;
   /** Daily commitment this timed block contributes toward, when applicable. */
   dailySessionId?: string | null;
   /** Minutes after the scheduled check-in when this session was started. */
@@ -167,11 +169,13 @@ export interface MusicLink {
 
 export type ThemePreference = "light" | "dark";
 export type GoalProgressDisplay = "ring" | "bar";
+/** Backdrop behind a live focus session. */
+export type FocusBackdrop = "pattern" | "solid" | "gradient";
 
 export type SessionIslandPosition =
   | "top-left" | "top" | "top-right"
   | "bottom-left" | "bottom" | "bottom-right";
-export type SessionIslandDisplay = "floating" | "navbar";
+export type SessionIslandDisplay = "floating" | "island" | "navbar";
 
 export interface Settings {
   displayName: string;
@@ -182,6 +186,8 @@ export interface Settings {
   theme: ThemePreference;
   /** How goal catalogue progress is visualised. */
   goalProgressDisplay?: GoalProgressDisplay;
+  /** Motion behind the live focus room. */
+  focusBackdrop?: FocusBackdrop;
   /** Where the floating active-session island is anchored in the viewport. */
   sessionIslandPosition?: SessionIslandPosition;
   /** Where the active-session reminder is displayed. */

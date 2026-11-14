@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react";
 
+import { CommitmentsSync } from "@/components/commitments/commitments-sync";
+import { CategoriesSync } from "@/components/categories/categories-sync";
 import { ActiveSessionBar } from "@/components/layout/active-session-bar";
 import { AppTopbar } from "@/components/layout/app-topbar";
 import { SidebarContent } from "@/components/layout/sidebar-content";
@@ -40,6 +42,8 @@ function AppShellBody({ children }: { children: ReactNode }) {
       <div className={`flex h-svh min-w-0 flex-1 flex-col transition-[padding] duration-200 ease-in-out ${collapsed ? "lg:pl-16" : "lg:pl-64"}`}>
         {hydrated ? (
           <>
+            <CommitmentsSync />
+            <CategoriesSync />
             <AppTopbar />
             <ActiveSessionBar />
           </>

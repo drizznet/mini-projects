@@ -1,86 +1,79 @@
 import {
   ArrowUpRight,
-  Browser,
-  Code,
-  Cube,
-  Database,
-  Lightning,
-  Terminal,
+  GithubLogo,
+  LinkedinLogo,
+  TwitterLogo,
 } from '@phosphor-icons/react'
 import { portfolio } from '@/config/portfolio'
+import { StatusTicker } from '@/components/features/portfolio/status-ticker'
 
-const toolIcon = {
-  code: Code,
-  browser: Browser,
-  terminal: Terminal,
-  database: Database,
-  cube: Cube,
-  lightning: Lightning,
-}
+const socials = [
+  { label: 'GitHub', href: portfolio.socials[0]?.href, Icon: GithubLogo },
+  { label: 'LinkedIn', href: '#contact', Icon: LinkedinLogo },
+  { label: 'Twitter', href: '#contact', Icon: TwitterLogo },
+]
 
 export function PortfolioHero() {
   return (
     <section
       id="top"
-      className="mx-auto grid max-w-6xl items-start gap-8 px-5 py-10 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-12 lg:px-8 lg:py-16"
+      className="mx-auto max-w-7xl px-5 py-8 lg:px-8 lg:py-12"
     >
-      <div className="overflow-hidden rounded-3xl border border-white/10 bg-surface">
-        <img
-          src="/assets/portfolio/hero.jpg"
-          alt=""
-          className="h-56 w-full object-cover sm:h-72 lg:h-[20rem]"
-        />
-      </div>
+      <div className="grid gap-5 lg:grid-cols-[minmax(17rem,0.38fr)_minmax(0,1fr)]">
+        <aside className="dorbesh-panel flex flex-col items-center px-6 py-8 text-center sm:px-10 lg:min-h-[45rem] lg:justify-between">
+          <div className="w-full">
+            <div className="dorbesh-portrait mx-auto">
+              <img
+                src="/assets/portfolio/hero.jpg"
+                alt="Portrait of Drizz"
+                className="size-full object-cover object-center"
+              />
+            </div>
+            <h1 className="mt-8 text-4xl font-semibold tracking-[-0.05em] text-[var(--hq-ink)]">
+              {portfolio.name}
+            </h1>
+            <p className="mx-auto mt-3 max-w-xs text-base leading-7 text-[var(--hq-muted)]">
+              Freelance software developer building useful products for real people.
+            </p>
+          </div>
 
-      <div className="flex flex-col justify-center">
-        {portfolio.openToWork ? (
-          <p className="text-xs font-semibold tracking-[0.22em] text-dz-green uppercase">
-            Open to work
-          </p>
-        ) : null}
-        <h1 className="mt-3 text-4xl font-bold tracking-tight uppercase sm:text-5xl lg:text-6xl">
-          {portfolio.headline}{' '}
-          <span className="text-dz-green">{portfolio.nameAccent}</span>
-        </h1>
-        <p className="mt-4 text-sm text-muted sm:text-base">
-          {portfolio.roles.join('  |  ')}
-        </p>
-        <div className="mt-5 max-w-xl space-y-3 text-sm leading-7 text-white/80 sm:text-[0.95rem]">
-          {portfolio.summary.map((paragraph) => (
-            <p key={paragraph}>{paragraph}</p>
-          ))}
-        </div>
-
-        <ul className="mt-7 flex flex-wrap gap-2.5" aria-label="Toolbox">
-          {portfolio.tools.map((tool) => {
-            const Icon = toolIcon[tool.id]
-            return (
-              <li
-                key={tool.id}
-                title={tool.label}
-                className="grid size-12 place-items-center rounded-xl border border-white/15 text-white"
+          <div className="mt-8 flex items-center gap-3">
+            {socials.map(({ label, href, Icon }) => (
+              <a
+                key={label}
+                href={href}
+                target={href?.startsWith('http') ? '_blank' : undefined}
+                rel={href?.startsWith('http') ? 'noreferrer' : undefined}
+                aria-label={label}
+                className="grid size-12 place-items-center rounded-xl border border-[var(--hq-line)] text-[var(--hq-ink)] transition hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
               >
                 <Icon className="size-5" />
-                <span className="sr-only">{tool.label}</span>
-              </li>
-            )
-          })}
-        </ul>
+              </a>
+            ))}
+          </div>
+        </aside>
 
-        <div className="mt-8 flex flex-wrap gap-3">
-          <a
-            href={portfolio.resumeHref}
-            className="inline-flex items-center gap-2 rounded-lg bg-dz-green px-5 py-3 text-sm font-bold tracking-wide text-black uppercase"
-          >
-            [ View work ]
-            <ArrowUpRight className="size-4" />
-          </a>
-          <a
-            href={`mailto:${portfolio.email}`}
-            className="inline-flex items-center gap-2 rounded-lg bg-dz-blue px-5 py-3 text-sm font-bold tracking-wide text-white uppercase"
-          >
-            [ Hire me ]
-          </a>
+        <div className="grid gap-5">
+          <div className="dorbesh-panel flex min-h-[31rem] flex-col justify-between p-8 sm:p-12 lg:p-14">
+            <div>
+              <p className="text-xl font-medium text-[var(--hq-muted)]">Hello there!</p>
+              <h2 className="mt-7 max-w-4xl text-3xl font-extrabold uppercase leading-[1.12] tracking-[-0.045em] text-[var(--hq-ink)] sm:text-4xl lg:text-[3.25rem]">
+                I’m <span className="dorbesh-outline">Drizz</span>, a freelance software developer building <span className="dorbesh-outline">user-centred</span> products with pixel-perfect <span className="text-[var(--primary-color)]">care.</span>
+              </h2>
+            </div>
+
+            <div className="mt-10 flex flex-wrap items-center justify-between gap-5">
+              <span className="dorbesh-availability">
+                <span className="size-3 rounded-full bg-[var(--primary-color)]" />
+                Available for freelancing
+              </span>
+              <a href="#work" className="dorbesh-btn">
+                Explore my work <ArrowUpRight className="size-4" />
+              </a>
+            </div>
+          </div>
+
+          <StatusTicker />
         </div>
       </div>
     </section>

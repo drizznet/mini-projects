@@ -21,6 +21,7 @@ import { ReflectionDialog } from "@/components/focus/reflection-dialog";
 import { HealthBadge } from "@/components/shared/badges";
 import { Button } from "@/components/ui/button";
 import { MOTIVATION_QUOTES } from "@/lib/constants";
+import { notifyDevice } from "@/lib/notifications";
 import { useFocusStore } from "@/lib/store/focus-store";
 import { formatClock, formatHours, fromDateKey } from "@/lib/utils";
 
@@ -125,10 +126,10 @@ export function DashboardGreeting({
             {!activeWork ? (
               <div className="flex gap-2">
                 <Button size="sm" variant="subtle" asChild>
-                  <Link href="/goals">View goals</Link>
+                  <Link href="/plans">View my plans</Link>
                 </Button>
                 <Button size="sm" asChild>
-                  <Link href="/focus">Start a session</Link>
+                  <Link href="/lockin">Start a session</Link>
                 </Button>
               </div>
             ) : null}
@@ -211,7 +212,7 @@ export function DashboardGreeting({
                     End session
                   </Button>
                   <Button size="sm" variant="subtle" asChild>
-                    <Link href="/focus/session">
+                    <Link href="/sessions">
                       Open workspace
                       <ArrowRight className="size-3.5" />
                     </Link>
@@ -249,6 +250,11 @@ export function DashboardGreeting({
             reasons={state.settings.pauseReasons}
             onConfirm={(reasonId, note) => {
               actions.pauseSession(activeWork.sessionId, reasonId, note);
+              void notifyDevice(
+                "Focus session paused",
+                "Your focus timer is paused. Resume when you are ready.",
+                "lockin-session-paused",
+              );
               toast.info("Session paused", { description: "The clock stops until you resume." });
             }}
           />
@@ -263,6 +269,11 @@ export function DashboardGreeting({
                 rating: null,
                 reflection: "",
               });
+              void notifyDevice(
+                "Focus session ended",
+                `${formatHours(activeWork.elapsedMs / 3_600_000)} of focus was recorded.`,
+                "lockin-session-ended",
+              );
               toast.success("Session logged");
             }}
           />

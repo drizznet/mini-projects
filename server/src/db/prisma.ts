@@ -6,13 +6,15 @@
  *
  * @example
  * import { prisma } from "../db/prisma";
- * const todos = await prisma.todo.findMany();
+ * Use this shared client from feature repositories; keep Prisma access out of controllers.
  */
 import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../generated/prisma/client";
 import { configureDatabaseUrl } from "../config/database";
 
-configureDatabaseUrl();
+const connectionString = configureDatabaseUrl();
+const adapter = new PrismaPg({ connectionString });
 
 const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
@@ -20,12 +22,7 @@ const globalForPrisma = globalThis as unknown as {
 
 export const prisma =
   globalForPrisma.prisma ??
-  new PrismaClient({
-    log:
-      process.env.NODE_ENV === "development"
-        ? ["query", "error", "warn"]
-        : ["error"],
-  });
+  new PrismaClient({ adapter });
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;

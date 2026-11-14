@@ -12,6 +12,7 @@ import type {
   FocusState,
   Priority,
 } from "./types";
+import { sessionCalendarDate } from "./session-calendar";
 import {
   addDays,
   clamp,
@@ -201,7 +202,7 @@ export function itemHoursForDate(
 ): Map<string, number> {
   const hours = new Map<string, number>();
   for (const session of state.sessions) {
-    if (toDateKey(session.startedAt) !== dateKey) continue;
+    if (sessionCalendarDate(session) !== dateKey) continue;
     hours.set(
       session.focusItemId,
       (hours.get(session.focusItemId) ?? 0) + sessionActiveHours(session, now),

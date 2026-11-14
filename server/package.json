@@ -3,13 +3,14 @@
   "private": true,
   "version": "0.1.0",
   "description": "Standalone Express + TSOA API",
+  "type": "module",
   "packageManager": "pnpm@9.15.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=20.19.0"
   },
   "scripts": {
     "generate": "prisma generate && tsoa spec-and-routes",
-    "watch:tsoa": "nodemon --watch src/modules --watch src/types --watch src/authentication.ts --watch tsoa.json --ext ts,json --exec \"tsoa spec-and-routes\"",
+    "watch:tsoa": "nodemon --watch src/modules --watch src/projects --watch src/types --watch src/authentication.ts --watch tsoa.json --ext ts,json --exec \"tsoa spec-and-routes\"",
     "dev": "pnpm generate && concurrently -k -n tsoa,api -c magenta,cyan \"pnpm watch:tsoa\" \"tsx watch --ignore node_modules src/server.ts\"",
     "build": "pnpm generate && tsc -p tsconfig.json",
     "start": "node dist/server.js",
@@ -20,17 +21,15 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
-    "db:migrate:sql": "tsx src/db/migrate.ts",
+    "db:migrate:local": "ENVIRONMENT=local prisma migrate deploy",
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@neon/config": "^1.7.2",
     "@neon/env": "^1.4.3",
-    "@prisma/client": "^6.19.3",
+    "@prisma/adapter-pg": "^7.10.1",
+    "@prisma/client": "^7.10.1",
     "@tsoa/runtime": "^6.6.0",
     "argon2": "^0.45.1",
     "cors": "^2.8.5",
@@ -51,7 +50,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "concurrently": "^9.2.1",
     "nodemon": "^3.1.10",
-    "prisma": "^6.19.3",
+    "prisma": "^7.10.1",
     "tsx": "^4.20.5",
     "typescript": "~5.9.3"
   }

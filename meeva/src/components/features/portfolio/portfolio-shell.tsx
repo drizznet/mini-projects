@@ -1,7 +1,6 @@
 import { PageEnter } from '@/components/motion/page-enter'
 import { PortfolioNav } from '@/components/features/portfolio/portfolio-nav'
 import { ScrollTop } from '@/components/features/portfolio/scroll-top'
-import { StatusTicker } from '@/components/features/portfolio/status-ticker'
 
 export function PortfolioShell({ children }: { children: React.ReactNode }) {
   return (
@@ -13,7 +12,6 @@ export function PortfolioShell({ children }: { children: React.ReactNode }) {
         Skip to content
       </a>
       <PortfolioNav />
-      <StatusTicker />
       <main>
         <PageEnter>{children}</PageEnter>
       </main>

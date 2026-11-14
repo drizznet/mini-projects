@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
+  Bell,
   Database,
   Download,
   Headphones,
@@ -15,6 +16,7 @@ import { toast } from "sonner";
 
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { AppearanceSettings } from "@/components/settings/appearance-settings";
+import { CategoriesSettings } from "@/components/settings/categories-settings";
 import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +30,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { WEEKDAY_LABELS } from "@/lib/constants";
+import { notificationSupport, showTestNotification, type NotificationSupport } from "@/lib/notifications";
 import { useFocusStore } from "@/lib/store/focus-store";
 import { cn, createId } from "@/lib/utils";
 
@@ -45,6 +48,23 @@ export default function SettingsPage() {
   const [newReason, setNewReason] = useState("");
   const [newMusicLabel, setNewMusicLabel] = useState("");
   const [newMusicUrl, setNewMusicUrl] = useState("");
+  const [notificationState, setNotificationState] = useState<NotificationSupport>("default");
+
+  useEffect(() => {
+    setNotificationState(notificationSupport());
+  }, []);
+
+  const testNotification = async () => {
+    try {
+      const next = await showTestNotification();
+      setNotificationState(next);
+      if (next === "granted") toast.success("Test notification sent to your device");
+      if (next === "denied") toast.error("Notifications are blocked in your browser settings");
+      if (next === "unsupported") toast.error("This browser does not support device notifications");
+    } catch {
+      toast.error("The device notification could not be displayed");
+    }
+  };
 
   const exportState = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], {
@@ -74,6 +94,31 @@ export default function SettingsPage() {
       />
 
       <AppearanceSettings />
+
+      <Card>
+        <CardHeader>
+          <div>
+            <CardTitle className="flex items-center gap-1.5">
+              <Bell className="size-3.5" />
+              Notifications
+            </CardTitle>
+            <CardDescription>
+              Allow lockIn to send focus reminders to your device.
+            </CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-wrap items-center gap-3">
+          <Button variant="subtle" onClick={testNotification} disabled={notificationState === "unsupported"}>
+            <Bell className="size-3.5" />
+            {notificationState === "granted" ? "Send test notification" : "Enable notifications"}
+          </Button>
+          <span className="text-xs text-muted-foreground">
+            Status: {notificationState}
+          </span>
+        </CardContent>
+      </Card>
+
+      <CategoriesSettings />
 
       <Card>
         <CardHeader>

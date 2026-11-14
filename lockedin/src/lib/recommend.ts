@@ -1,5 +1,6 @@
 import { sessionActiveHours, type GoalProgress } from "./analytics";
 import { PRIORITY_META } from "./health";
+import { isPlanFailed, loggedHoursForGoal } from "./plan-result";
 import { lineageFor, planForDate, type EntityIndex } from "./selectors";
 import type { FocusItem, FocusState } from "./types";
 import { addDays, round, toDateKey } from "./utils";
@@ -81,7 +82,9 @@ export function recommendNext(
   const candidates = state.focusItems.filter((item) => {
     if (item.archivedAt || item.status === "done") return false;
     const goal = index.goalById.get(item.goalId);
-    return goal ? goal.status === "active" : false;
+    if (!goal || goal.status !== "active") return false;
+    const logged = goalById.get(item.goalId)?.loggedHours ?? loggedHoursForGoal(state, goal.id, now);
+    return !isPlanFailed(goal, logged, todayKey);
   });
 
   const scored = candidates.map((item) => {

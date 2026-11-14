@@ -1,50 +1,33 @@
 # How this app talks to Postgres
 
-## The pipeline
+The server uses one shared Prisma client and one Postgres database. Shared tables belong in
+`prisma/schema.prisma`; product-specific tables should be organized around their product
+module.
 
 ```text
 HTTP request
-  → TodosController          (TSOA / HTTP only)
-  → TodoService              (rules: validate, 404, normalize)
-  → TodoRepository           (Prisma Client)
-  → PostgreSQL               (brew :5432 or Docker :5433)
+  → product/shared controller (TSOA)
+  → service (business rules)
+  → repository (Prisma Client)
+  → PostgreSQL
 ```
 
-**HTTP DTOs** = `src/modules/todos/todo.types.ts` (TSOA / OpenAPI).  
-**Row type** = Prisma `Todo` from `@prisma/client`.  
-**Table** = `todos` (defined in `prisma/schema.prisma`, applied by migrate/push).  
-**Repository** = talks to the DB; service never imports Prisma/`pg` directly.
-
-## Prisma path
-
-`GET /api/todos/{id}`:
-
-1. Controller → `todoService.getById(id)`
-2. Service → `todoRepository.findById(id)`
-3. Repository → `prisma.todo.findUnique({ where: { id } })`
-4. Prisma runs SQL under the hood and returns a typed row
-5. `mapTodo()` turns `Date` fields into ISO strings for the API
-
-Schema lives in `prisma/schema.prisma`. Client singleton: `src/db/prisma.ts`.
+Repositories are the only application layer that should import Prisma. Controllers should
+remain focused on HTTP and services should remain focused on business rules.
 
 ## Commands
 
 ```bash
-# 1. Postgres up + DATABASE_URL in .env
+# Postgres up + DATABASE_URL in .env
 pnpm db:ping
 
-# 2. Create/sync tables from prisma/schema.prisma
+# Create/sync tables from prisma/schema.prisma
 pnpm db:migrate          # named migration (preferred)
 # or
 pnpm db:push             # quick prototype sync (no migration history)
 
-# 3. Regenerate client after schema edits (migrate/push usually do this)
 pnpm db:generate
-
-# 4. Browse data in a GUI
 pnpm db:studio
-
-pnpm dev
 ```
 
 ## Brew vs Docker
@@ -54,6 +37,7 @@ pnpm dev
 | Port | `5432` | `5433` |
 | URL | `postgresql://YOU@localhost:5432/server_dev` | `postgresql://server:server@localhost:5433/server_dev` |
 
-Only `DATABASE_URL` changes.
-
-We pin **Prisma 6** (classic `url = env("DATABASE_URL")` in the schema). Prisma 7 needs extra config — see BACKLOG.
+Only the runtime URL changes. Prisma 7 reads its CLI datasource configuration from
+`prisma.config.ts`, preferring `DATABASE_URL_UNPOOLED` for migrations. Neon migrations
+should use the direct connection, not the pooled hostname. Runtime queries use the
+PostgreSQL driver adapter.

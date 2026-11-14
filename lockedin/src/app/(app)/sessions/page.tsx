@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { CircleSlash2, MessageSquareQuote, Play, Timer, Zap } from "lucide-react";
 
 import { CategoryDot } from "@/components/shared/badges";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
+import { ActiveSessionStage, IdleSessionStage } from "@/components/sessions/active-session-stage";
 import { RatingStars } from "@/components/sessions/rating-stars";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -46,12 +46,18 @@ export default function SessionsPage() {
   const { state, index, now, rangeSessions } = useFocusData({
     tickMs: 60_000,
   });
+  const liveSession = state.sessions.find(
+    (session) =>
+      session.id === state.activeSessionId &&
+      (session.status === "running" || session.status === "paused"),
+  );
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
   const filtered = useMemo(() => {
     return rangeSessions
       .filter((session) => {
+        if (session.id === liveSession?.id) return false;
         if (statusFilter !== "all" && session.status !== statusFilter) {
           return false;
         }
@@ -63,7 +69,7 @@ export default function SessionsPage() {
         (a, b) =>
           new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime(),
       );
-  }, [rangeSessions, statusFilter, categoryFilter, index]);
+  }, [rangeSessions, statusFilter, categoryFilter, index, liveSession?.id]);
 
   const byDay = useMemo(
     () => groupBy(filtered, (session) => toDateKey(session.startedAt)),
@@ -72,15 +78,12 @@ export default function SessionsPage() {
   const dayKeys = Object.keys(byDay).sort((a, b) => b.localeCompare(a));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {liveSession ? <ActiveSessionStage /> : <IdleSessionStage />}
+
       <PageHeader
-        title="Sessions"
-        description="A history of the focus sessions attached to your work items, with reflections and pause detail."
-        actions={
-          <Button size="sm" asChild>
-            <Link href="/focus">Start a session</Link>
-          </Button>
-        }
+        title="History"
+        description="Past sessions, with reflections and pause detail."
       />
 
       <div className="flex flex-col gap-2 sm:flex-row">

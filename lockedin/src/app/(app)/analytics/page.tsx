@@ -52,10 +52,16 @@ const RANGES = [
  * cheaper and more consistent than refetching per range.
  */
 export default function AnalyticsPage() {
-  const { state, index, now, days, goals } = useFocusData({ tickMs: 60_000 });
+  const { state, index, now, days, goals, today, todayKey } = useFocusData({
+    tickMs: 60_000,
+  });
   const [rangeId, setRangeId] = useState<(typeof RANGES)[number]["id"]>("30");
 
   const rangeDays = RANGES.find((range) => range.id === rangeId)!.days;
+  const activeCommitments = state.goals.filter(
+    (goal) => goal.status === "active",
+  ).length;
+  const remainingToday = Math.max(0, today.plannedHours - today.actualHours);
 
   const view = useMemo(() => {
     const slice = days.slice(-rangeDays);
@@ -109,6 +115,45 @@ export default function AnalyticsPage() {
           </Tabs>
         }
       />
+
+      <section className="space-y-2">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-sm font-semibold">Today</h2>
+          <p className="text-xs text-muted-foreground">
+            {new Date(`${todayKey}T12:00:00`).toLocaleDateString(undefined, {
+              weekday: "long",
+              month: "short",
+              day: "numeric",
+            })}
+          </p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            label="Focused today"
+            value={formatHours(today.actualHours)}
+            hint={`${formatHours(today.plannedHours)} planned`}
+            icon={Clock}
+          />
+          <StatCard
+            label="Still open today"
+            value={formatHours(remainingToday)}
+            hint="Planned minus logged"
+            icon={Timer}
+          />
+          <StatCard
+            label="Active plans"
+            value={activeCommitments}
+            hint="Goals in motion"
+            icon={Activity}
+          />
+          <StatCard
+            label="Breaks today"
+            value={today.interruptions}
+            hint={`Focus score ${today.focusScore}`}
+            icon={Zap}
+          />
+        </div>
+      </section>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard

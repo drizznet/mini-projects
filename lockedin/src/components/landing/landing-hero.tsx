@@ -47,7 +47,7 @@ export function LandingHero() {
   return (
     <>
       <div ref={navSlot} className="h-20 bg-background">
-      <header className={`mx-auto flex h-20 max-w-7xl items-center justify-between gap-3 px-5 sm:px-8 ${navFloating ? "landing-floating-nav fixed inset-x-3 top-3 z-50 rounded-2xl border border-primary/10 bg-background/95 shadow-[0_8px_32px_-12px_#410d4b40] backdrop-blur-xl sm:inset-x-5" : "relative z-30 border-b border-primary/10"}`}>
+      <header className={`mx-auto flex h-20 max-w-7xl items-center justify-between gap-3 px-5 sm:px-8 ${navFloating ? "landing-floating-nav fixed inset-x-3 top-3 z-50 rounded-2xl border border-primary/10 bg-background/95 shadow-[0_8px_32px_-16px_#00000055] backdrop-blur-xl sm:inset-x-5" : "relative z-30 border-b border-primary/10"}`}>
         <BrandLockup href="/" showSubtitle={false} />
         <nav aria-label="Main navigation" className="hidden items-center gap-7 text-sm text-muted-foreground lg:flex">
           <a href="#product" className="hover:text-primary">The workspace</a>

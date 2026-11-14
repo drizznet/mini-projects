@@ -10,24 +10,32 @@ import { portfolio } from '@/config/portfolio'
 
 export function PortfolioPage() {
   return (
-    <>
+    <div className="bg-[var(--hq-canvas)] text-[var(--hq-ink)] font-sans selection:bg-[var(--primary-color)] selection:text-white">
       <PortfolioHero />
       <Competencies />
-      <Experience />
       <SkillCards />
-      <Pipeline />
+      <Experience />
       <Work />
+      <Pipeline />
       <Contact />
-      <footer className="border-t border-white/10 px-5 py-10 lg:px-8">
-        <div className="mx-auto flex max-w-6xl flex-col justify-between gap-4 text-sm text-faint sm:flex-row sm:items-center">
+
+      <footer className="border-t border-white/10 bg-[var(--hq-surface)] px-5 py-8 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 text-xs sm:text-sm text-slate-400 sm:flex-row">
           <p>
-            © {new Date().getFullYear()} {portfolio.domain}
+            Copyright © {new Date().getFullYear()}, <span className="font-semibold text-white">{portfolio.name}</span> ({portfolio.domain}). All Rights Reserved.
           </p>
-          <Link to="/meeva" className="hover:text-white">
-            Meeva — software company
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/meeva" className="transition-colors hover:text-[var(--primary-color)]">
+              Meeva Company HQ
+            </Link>
+            <span>•</span>
+            <a href="#top" className="transition-colors hover:text-white">
+              Back to Top ↑
+            </a>
+          </div>
         </div>
       </footer>
-    </>
+    </div>
   )
 }
+

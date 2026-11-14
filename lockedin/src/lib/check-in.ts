@@ -1,6 +1,14 @@
 import type { Goal } from "./types";
 import { fromDateKey } from "./utils";
 
+export type DayRelation = "past" | "today" | "future";
+
+export function dayRelation(dateKey: string, todayKey: string): DayRelation {
+  if (dateKey < todayKey) return "past";
+  if (dateKey > todayKey) return "future";
+  return "today";
+}
+
 export interface CheckInState {
   state: "upcoming" | "past" | "open";
   enabled: boolean;

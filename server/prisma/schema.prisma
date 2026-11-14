@@ -9,16 +9,22 @@
 // DATABASE_URL comes from .env (brew :5432 or Docker :5433).
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
-/// Matches the learning `todos` table. @@map keeps snake_case columns in Postgres
-/// while the Prisma client uses camelCase in TypeScript.
+enum CommitmentPeriod {
+  THREE_D @map("3d")
+  ONE_W   @map("1w")
+  ONE_M   @map("1m")
+}
+
+/// Legacy table retained for migration-history compatibility. It is no longer
+/// exposed through the Prisma Client or an HTTP module.
 model Todo {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title       String
@@ -31,6 +37,7 @@ model Todo {
   @@index([completed])
   @@index([createdAt(sort: Desc)])
   @@map("todos")
+  @@ignore
 }
 
 model User {
@@ -41,10 +48,57 @@ model User {
   updatedAt     DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
   profile       Profile?
   accounts      Account[]
+  commitments   Commitment[]
+  categories    Category[]
 
   @@map("users")
   @@index([email])
   @@index([createdAt(sort: Desc)])
+}
+
+model Commitment {
+  id                        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId                    String   @db.Uuid
+  categoryId                String?  @db.Uuid
+  title                     String
+  description               String?
+  priority                  String   @default("medium")
+  status                    String   @default("ongoing")
+  targetHours               Float    @default(0)
+  targetDate                String?
+  startDate                 String?
+  commitmentPeriod          CommitmentPeriod?
+  dailyCommitmentMinutes    Int?
+  scheduledCheckInEnabled   Boolean  @default(false)
+  scheduledCheckInTime      String?
+  strictCheckIn             Boolean  @default(false)
+  workFocusMode             String   @default("flexible")
+  createdAt                 DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt                 DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user                      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category                  Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([userId, status])
+  @@index([userId, priority])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("lockedin_commitments")
+}
+
+model Category {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String       @db.Uuid
+  name        String
+  description String?
+  color       String       @default("chart-1")
+  icon        String       @default("circle")
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commitments Commitment[]
+
+  @@unique([userId, name])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("lockedin_categories")
 }
 
 /// 1:1 with User. Primary key is the user's id — a profile cannot exist without that user.

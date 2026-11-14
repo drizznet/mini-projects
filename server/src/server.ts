@@ -14,7 +14,7 @@ import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import { ValidateError } from "@tsoa/runtime";
-import { AppError } from "./errors";
+import { AppError, isDatabaseConnectionError } from "./errors";
 import { RegisterRoutes } from "./generated/routes";
 import swaggerDocument from "./generated/swagger.json";
 
@@ -67,8 +67,6 @@ export function createApp() {
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: "Too many requests, please try again later." },
-    // Keep load-balancer / k8s probes from burning the quota.
-    skip: (req) => req.path === "/health",
   });
   app.use(limiter);
 
@@ -102,6 +100,18 @@ export function createApp() {
 
       if (err instanceof AppError) {
         res.status(err.status).json({ error: err.message });
+        return;
+      }
+
+      if (isDatabaseConnectionError(err)) {
+        console.error("[db] database is not connected", err);
+        res
+          .status(503)
+          .set("Retry-After", "5")
+          .json({
+            error:
+              "Database is not connected. Start Docker/Postgres and try again.",
+          });
         return;
       }
 

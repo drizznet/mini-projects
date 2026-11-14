@@ -16,7 +16,6 @@ import {
   CategoryDot,
   PriorityBadge,
 } from "@/components/shared/badges";
-import { EmptyState } from "@/components/shared/empty-state";
 import { ProgressDisplay } from "@/components/shared/progress-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +32,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { sessionActiveHours, sessionActiveMs } from "@/lib/analytics";
 import { getCheckInState } from "@/lib/check-in";
+import { notifyDevice } from "@/lib/notifications";
+import { isPlanFailed, loggedHoursForGoal } from "@/lib/plan-result";
 import { buildIndex, lineageFor } from "@/lib/selectors";
 import { useFocusStore } from "@/lib/store/focus-store";
 import type { Category, FocusItem, FocusSession, PlanAllocation } from "@/lib/types";
@@ -114,12 +115,17 @@ export function TodaysWorkItemsCard({
         checked: Boolean(checked[entry.id]),
       })),
     });
+    void notifyDevice(
+      "Focus session started",
+      `${startRequest.itemName} is now locked in.`,
+      "lockin-session-started",
+    );
     setStartRequest(null);
-    router.push("/focus/session");
+    router.push("/lockin");
   };
 
   return (
-    <Card className="h-full min-h-0 overflow-hidden">
+    <Card className="overflow-hidden rounded-2xl">
       <CardHeader>
         <div>
           <CardTitle>Today&apos;s work</CardTitle>
@@ -128,21 +134,22 @@ export function TodaysWorkItemsCard({
           </p>
         </div>
         <Button size="sm" variant="subtle" asChild>
-          <Link href="/work-items">Plan work</Link>
+          <Link href="/calendar">Open calendar</Link>
         </Button>
       </CardHeader>
-      <CardContent className="min-h-0 space-y-3 overflow-y-auto">
+      <CardContent className="max-h-[26rem] space-y-3 overflow-y-auto">
         {allocations.length === 0 ? (
-          <EmptyState
-            icon={Target}
-            title="No work planned for today"
-            description="Open Work items to choose the concrete pieces of your goals for this day."
-            action={
-              <Button size="sm" asChild>
-                <Link href="/work-items">Open work items</Link>
-              </Button>
-            }
-          />
+          <div className="flex items-center gap-3 rounded-xl border border-dashed border-border/80 px-4 py-3">
+            <span className="rounded-lg bg-secondary/60 p-2 text-muted-foreground">
+              <Target className="size-4" />
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-medium">No work planned for today</p>
+              <p className="text-xs text-muted-foreground">
+                Open Calendar to see today’s check-ins and start a focus session.
+              </p>
+            </div>
+          </div>
         ) : visibleAllocations.length === 0 ? (
           <div className="rounded-xl border border-dashed border-primary/25 bg-primary/5 px-4 py-8 text-center">
             <p className="text-sm font-medium text-primary">Your active work is shown above.</p>
@@ -154,6 +161,7 @@ export function TodaysWorkItemsCard({
             const lineage = item ? lineageFor(index, item.id) : undefined;
             const goal = lineage?.goal;
             if (!item || !goal) return null;
+            const failed = isPlanFailed(goal, loggedHoursForGoal(state, goal.id, now), toDateKey(new Date(now)));
             const category = categories.find((entry) => entry.id === goal.categoryId);
             const itemSessions = sessions.filter(
               (session) =>
@@ -176,10 +184,10 @@ export function TodaysWorkItemsCard({
                 id={`today-work-item-${item.id}`}
                 layoutId={`work-item-${item.id}`}
                 transition={{ layout: { duration: 0.35, ease: "easeInOut" } }}
-                className={`rounded-xl border bg-gradient-to-b from-card via-card to-primary/5 p-4 transition-[border-color,box-shadow,background-color] ${
+                className={`rounded-xl border bg-card p-3.5 transition-colors ${
                   item.id === highlightedFocusItemId
-                    ? "border-primary/60 bg-primary/5 ring-2 ring-primary/15"
-                    : "border-border/70 hover:border-primary/30"
+                    ? "border-chart-2/50 bg-chart-2/5 ring-2 ring-chart-2/15"
+                    : "border-border/70 hover:border-border"
                 }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-3">
@@ -213,19 +221,26 @@ export function TodaysWorkItemsCard({
                   </div>
                   <ProgressDisplay
                     value={progress}
-                    size={ringDisplay ? 58 : undefined}
-                    strokeWidth={ringDisplay ? 7 : undefined}
-                    className={ringDisplay ? "shrink-0" : "h-2"}
+                    size={ringDisplay ? 48 : undefined}
+                    strokeWidth={ringDisplay ? 6 : undefined}
+                    className={ringDisplay ? "shrink-0" : "h-1.5"}
                   >
                     {ringDisplay ? <span className="tabular text-[11px] font-semibold">{Math.round(progress * 100)}%</span> : null}
                   </ProgressDisplay>
                 </div>
 
                 <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
-                  {complete ? (
+                  {failed ? (
+                    <Badge
+                      variant="outline"
+                      className="h-8 rounded-lg border-health-critical/30 px-3 text-health-critical"
+                    >
+                      Failed
+                    </Badge>
+                  ) : complete ? (
                     <Badge className="h-8 rounded-lg px-3" variant="secondary">
                       <CheckCircle2 className="size-3.5 text-health-excellent" />
-                      Commitment met
+                      Plan met
                     </Badge>
                   ) : checkIn.state === "past" ? (
                     <>
@@ -370,8 +385,8 @@ export function TodaysWorkItemsCard({
               Cancel
             </Button>
             {startRequest?.blockedReason ? (
-              <Button asChild>
-                <Link href="/focus/session">Open active session</Link>
+                <Button asChild>
+                <Link href="/lockin">Open focus room</Link>
               </Button>
             ) : (
               <Button onClick={startSession}>

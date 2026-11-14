@@ -8,8 +8,9 @@ import { ProgressDisplay } from "@/components/shared/progress-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useFocusStore } from "@/lib/store/focus-store";
+import { isPlanFailed, loggedHoursForGoal } from "@/lib/plan-result";
 import type { Category, DailySession, FocusItem, Goal } from "@/lib/types";
-import { cn, formatDuration, formatTime, fromDateKey } from "@/lib/utils";
+import { cn, formatDuration, formatTime, fromDateKey, toDateKey } from "@/lib/utils";
 
 export function DailySessionCard({
   session,
@@ -31,6 +32,7 @@ export function DailySessionCard({
   highlighted?: boolean;
 }) {
   const { state } = useFocusStore();
+  const failed = isPlanFailed(goal, loggedHoursForGoal(state, goal.id, now), toDateKey(new Date(now)));
   const ringDisplay = (state.settings.goalProgressDisplay ?? "ring") === "ring";
   const commitmentMs = session.commitmentMinutes * 60_000;
   const complete = focusedMs >= commitmentMs;
@@ -39,8 +41,8 @@ export function DailySessionCard({
   const remainingMs = Math.max(0, commitmentMs - focusedMs);
   const progress = commitmentMs > 0 ? Math.min(100, (focusedMs / commitmentMs) * 100) : 0;
   const href = active
-    ? "/focus/session"
-    : `/focus?dailySession=${encodeURIComponent(session.id)}&goal=${encodeURIComponent(goal.id)}`;
+    ? "/sessions"
+    : `/lockin?dailySession=${encodeURIComponent(session.id)}&goal=${encodeURIComponent(goal.id)}`;
   const checkIn = (() => {
     if (!session.scheduledCheckInEnabled || !session.scheduledCheckInTime || active) {
       return null;
@@ -96,7 +98,7 @@ export function DailySessionCard({
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1">
               <Clock3 className="size-3.5" />
-              {formatDuration(commitmentMs)} commitment
+              {formatDuration(commitmentMs)} plan
             </span>
             {session.scheduledCheckInEnabled && session.scheduledCheckInTime ? (
               <span>Check in · {formatTime(`1970-01-01T${session.scheduledCheckInTime}:00`)}</span>
@@ -124,7 +126,7 @@ export function DailySessionCard({
         <div className={cn("flex items-baseline justify-between gap-3 text-xs", ringDisplay && "min-w-0 flex-1")}>
           <span className="tabular font-medium">{formatDuration(focusedMs)} focused</span>
           <span className="tabular text-muted-foreground">
-            {complete ? "Commitment met" : `${formatDuration(remainingMs)} remaining`}
+            {complete ? "Plan met" : `${formatDuration(remainingMs)} remaining`}
           </span>
         </div>
         {ringDisplay ? (
@@ -148,7 +150,14 @@ export function DailySessionCard({
       </div>
 
       <div className="mt-5 flex justify-end">
-        {complete ? (
+        {failed ? (
+          <Badge
+            variant="outline"
+            className="h-8 rounded-lg border-health-critical/30 px-3 text-health-critical"
+          >
+            Failed
+          </Badge>
+        ) : complete ? (
           <Badge className="h-8 rounded-lg px-3" variant="secondary">
             <CheckCircle2 className="size-3.5 text-health-excellent" />
             Completed

@@ -43,7 +43,7 @@ pnpm db:ping
 pnpm db:migrate   # or pnpm db:push
 ```
 
-`src/db/prisma.ts` is the Prisma client; todos use it by default.
+`src/db/prisma.ts` is the shared Prisma client used by feature repositories.
 
 ## 3. Stop / reset
 

@@ -54,7 +54,7 @@ export function RecentSessionsCard({
             description="Start your first focus session and it will show up here with its rating and interruptions."
             action={
               <Button size="sm" asChild>
-                <Link href="/focus">Start a session</Link>
+                <Link href="/lockin">Start a session</Link>
               </Button>
             }
           />

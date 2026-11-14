@@ -5,8 +5,8 @@ import {
   STATE_VERSION,
 } from "./constants";
 import type {
-  Category,
   DailyPlan,
+  Category,
   FocusItem,
   FocusSession,
   FocusState,
@@ -53,148 +53,6 @@ function between(rng: Rng, min: number, max: number): number {
 function chance(rng: Rng, probability: number): boolean {
   return rng() < probability;
 }
-
-const CATEGORY_SEED: Omit<Category, "createdAt">[] = [
-  {
-    id: "cat_learning",
-    name: "Learning",
-    description: "Skill acquisition, courses, deliberate practice.",
-    color: "chart-1",
-    icon: "graduation",
-  },
-  {
-    id: "cat_client",
-    name: "Client Work",
-    description: "Billable delivery for external clients.",
-    color: "chart-2",
-    icon: "briefcase",
-  },
-  {
-    id: "cat_job",
-    name: "Main Job",
-    description: "Core employment responsibilities and roadmap work.",
-    color: "chart-3",
-    icon: "building",
-  },
-  {
-    id: "cat_projects",
-    name: "Personal Projects",
-    description: "Products and experiments I own end to end.",
-    color: "chart-4",
-    icon: "rocket",
-  },
-  {
-    id: "cat_admin",
-    name: "Admin Tasks",
-    description: "Invoicing, inbox, planning, low-cognitive overhead.",
-    color: "chart-5",
-    icon: "clipboard",
-  },
-  {
-    id: "cat_misc",
-    name: "Miscellaneous",
-    description: "Reading, research, anything that resists a bucket.",
-    color: "chart-6",
-    icon: "shapes",
-  },
-];
-
-const GOAL_SEED: Omit<Goal, "createdAt">[] = [
-  {
-    id: "goal_csharp",
-    categoryId: "cat_learning",
-    title: "Learn C# and .NET",
-    description:
-      "Get production-comfortable with C#, ASP.NET Core and Entity Framework.",
-    priority: "high",
-    targetHours: 120,
-    status: "active",
-    targetDate: null,
-  },
-  {
-    id: "goal_rn",
-    categoryId: "cat_learning",
-    title: "Learn React Native",
-    description: "Ship one cross-platform app from scratch to store review.",
-    priority: "medium",
-    targetHours: 80,
-    status: "active",
-    targetDate: null,
-  },
-  {
-    id: "goal_figma",
-    categoryId: "cat_learning",
-    title: "Master Figma",
-    description:
-      "Auto layout, variables, component APIs and prototype interactions.",
-    priority: "medium",
-    targetHours: 60,
-    status: "active",
-    targetDate: null,
-  },
-  {
-    id: "goal_logistics",
-    categoryId: "cat_projects",
-    title: "Build a Logistics Platform",
-    description:
-      "Multi-tenant dispatch, tracking and settlement platform MVP.",
-    priority: "critical",
-    targetHours: 200,
-    status: "active",
-    targetDate: null,
-  },
-  {
-    id: "goal_acme",
-    categoryId: "cat_client",
-    title: "Ship Acme dashboard redesign",
-    description: "Analytics redesign, component library and handover docs.",
-    priority: "high",
-    targetHours: 90,
-    status: "active",
-    targetDate: null,
-  },
-  {
-    id: "goal_billing",
-    categoryId: "cat_job",
-    title: "Migrate billing service",
-    description:
-      "Extract billing from the monolith without downtime or drift.",
-    priority: "high",
-    targetHours: 140,
-    status: "active",
-    targetDate: null,
-  },
-  {
-    id: "goal_ops",
-    categoryId: "cat_admin",
-    title: "Keep the business boring",
-    description: "Invoices out weekly, inbox to zero, books reconciled.",
-    priority: "low",
-    targetHours: 30,
-    status: "active",
-    targetDate: null,
-  },
-  {
-    id: "goal_reading",
-    categoryId: "cat_misc",
-    title: "Read 6 systems-design books",
-    description: "One book every three weeks with written notes.",
-    priority: "low",
-    targetHours: 45,
-    status: "paused",
-    targetDate: null,
-  },
-  {
-    id: "goal_docker",
-    categoryId: "cat_learning",
-    title: "Learn Docker and CI basics",
-    description: "Containerise every project and automate the release path.",
-    priority: "medium",
-    targetHours: 40,
-    status: "completed",
-    targetDate: null,
-  },
-];
 
 interface ItemSeed extends Omit<FocusItem, "createdAt" | "archivedAt"> {
   /** Relative likelihood of being planned on any given day. */
@@ -464,12 +322,114 @@ function buildSettings(): Settings {
     defaultSessionMinutes: 60,
     theme: "light",
     goalProgressDisplay: "ring",
+    focusBackdrop: "gradient",
     sessionIslandPosition: "bottom",
     sessionIslandDisplay: "floating",
     checklistTemplate: DEFAULT_CHECKLIST,
     pauseReasons: DEFAULT_PAUSE_REASONS,
     musicLinks: DEFAULT_MUSIC_LINKS,
   };
+}
+
+function demoCheckInTime(now: Date) {
+  const checkIn = new Date(now.getTime() + 10 * 60_000);
+  return `${String(checkIn.getHours()).padStart(2, "0")}:${String(
+    checkIn.getMinutes(),
+  ).padStart(2, "0")}`;
+}
+
+function demoCommitments(now: Date, createdAt: string) {
+  const startDate = toDateKey(now);
+  const endDate = toDateKey(addDays(now, 2));
+  const checkInTime = demoCheckInTime(now);
+
+  const categories: Category[] = [
+    {
+      id: "demo_category_testing",
+      name: "Test commitments",
+      description: "Seeded records for commitment and check-in testing.",
+      color: "chart-1",
+      icon: "flask-conical",
+      createdAt,
+    },
+  ];
+
+  const goals: Goal[] = [
+    {
+      id: "demo_commitment_checkin_a",
+      categoryId: categories[0].id,
+      title: "Test check-in · Deep work",
+      description: "Dummy scheduled check-in for testing the reminder flow.",
+      priority: "high",
+      targetHours: 3,
+      status: "active",
+      targetDate: endDate,
+      workFocusMode: "continuous",
+      createdAt,
+      startDate,
+      commitmentPeriod: "3d",
+      dailyCommitmentMinutes: 60,
+      scheduledCheckInEnabled: true,
+      scheduledCheckInTime: checkInTime,
+      strictCheckIn: false,
+    },
+    {
+      id: "demo_commitment_checkin_b",
+      categoryId: categories[0].id,
+      title: "Test check-in · Reading",
+      description: "Dummy scheduled check-in for testing a second reminder.",
+      priority: "medium",
+      targetHours: 1.5,
+      status: "active",
+      targetDate: endDate,
+      workFocusMode: "flexible",
+      createdAt,
+      startDate,
+      commitmentPeriod: "3d",
+      dailyCommitmentMinutes: 30,
+      scheduledCheckInEnabled: true,
+      scheduledCheckInTime: checkInTime,
+      strictCheckIn: true,
+    },
+    {
+      id: "demo_commitment_3day_a",
+      categoryId: categories[0].id,
+      title: "Test 3-day plan · Project slice",
+      description: "Dummy three-day plan for testing period-based commitments.",
+      priority: "medium",
+      targetHours: 4.5,
+      status: "active",
+      targetDate: endDate,
+      workFocusMode: "flexible",
+      createdAt,
+      startDate,
+      commitmentPeriod: "3d",
+      dailyCommitmentMinutes: 90,
+      scheduledCheckInEnabled: false,
+      scheduledCheckInTime: null,
+      strictCheckIn: false,
+    },
+    {
+      id: "demo_commitment_3day_b",
+      categoryId: categories[0].id,
+      title: "Test 3-day plan · Practice",
+      description: "Dummy three-day plan for testing progress and completion.",
+      priority: "low",
+      targetHours: 3,
+      status: "active",
+      targetDate: endDate,
+      workFocusMode: "continuous",
+      createdAt,
+      startDate,
+      commitmentPeriod: "3d",
+      dailyCommitmentMinutes: 60,
+      scheduledCheckInEnabled: false,
+      scheduledCheckInTime: null,
+      strictCheckIn: false,
+    },
+  ];
+
+  return { categories, goals };
 }
 
 /**
@@ -480,15 +440,9 @@ export function createSeedState(now: Date = new Date()): FocusState {
   const rng = mulberry32(0x0c7ea1);
   const createdBase = addDays(now, -(HISTORY_DAYS + 14)).toISOString();
 
-  const categories: Category[] = CATEGORY_SEED.map((category) => ({
-    ...category,
-    createdAt: createdBase,
-  }));
-
-  const goals: Goal[] = GOAL_SEED.map((goal) => ({
-    ...goal,
-    createdAt: createdBase,
-  }));
+  const demo = demoCommitments(now, createdBase);
+  const categories = demo.categories;
+  const goals = demo.goals;
 
   const focusItems: FocusItem[] = ITEM_SEED.map(({ cadence, ...item }) => ({
     ...item,

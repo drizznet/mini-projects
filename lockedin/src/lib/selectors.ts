@@ -5,7 +5,7 @@ import type {
   FocusState,
   Goal,
 } from "./types";
-import { toDateKey } from "./utils";
+import { sessionCalendarDate } from "./session-calendar";
 
 /**
  * Lookup helpers over the flat store.
@@ -23,7 +23,7 @@ export interface EntityIndex {
 export function buildIndex(state: FocusState): EntityIndex {
   const sessionsByDate = new Map<string, FocusSession[]>();
   for (const session of state.sessions) {
-    const key = toDateKey(session.startedAt);
+    const key = sessionCalendarDate(session);
     const bucket = sessionsByDate.get(key);
     if (bucket) bucket.push(session);
     else sessionsByDate.set(key, [session]);
